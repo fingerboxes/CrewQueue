@@ -6,6 +6,9 @@
 *.user
 *.userosscache
 *.sln.docstates
+Assembly-CSharp.dll
+Assembly-CSharp-firstpass.dll
+UnityEngine.dll
 
 # Build results
 [Dd]ebug/
