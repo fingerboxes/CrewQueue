@@ -4,7 +4,7 @@
 Major Goals
 * Replace default oldest-first crew selection criteria
 * Make sure that crew roles are well-represented in the 'default' pod, in order to assist in mission success. Different pod types will have different priority structures. One of each will be chosen (if available), and any extra will be chosen pesudo-randomly.
-  * Command or Atmospheric (Mk1, Mkk2, Mk3 Cockpits, Mk1, Mk1-2 capsules, similar mod parts, unconfigured mod parts); Pilot, Engineer, Scientist
+  * Command or Atmospheric (Mk1, Mk2, Mk3 Cockpits, Mk1, Mk1-2 capsules, similar mod parts, unconfigured mod parts); Pilot, Engineer, Scientist
   * Orbital (Cupola, Hitchhiker, similar mod parts); Engineer, Scientist
   * Science Lab (Mobile Laboratory, similar mod parts); Scientist
   * Lander Cans (Mk1, Mk2 lander-cans, similar mod parts); Pilot, Engineer, Scientist
