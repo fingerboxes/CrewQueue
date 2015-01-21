@@ -10,6 +10,8 @@ Major Goals
   * Lander Cans (Mk1, Mk2 lander-cans, similar mod parts); Pilot, Engineer, Scientist
 * Apply a 'vacation period' after each mission for participants (10% of mission duration, or 30 days, whichever is greater (configurable)) where Crew Member will not be automatically selected unless no other Crew are available.
 * First Crew Member of each Profession will be the highest Rank available at the Space Center & not on vacation. Additional crew members will be chosen pesudo-randomly from non-vacationing Crew Members, with a bias toward the lowest-ranked.
+* 'Stock-alike' feel. 
 
 Minor Goals/Medium-Term features
 * Option to allow the 'vacation period' to be a *hard lock*, preventing assignment of that Crew Member.
+* Editor GUI to allow on-the-fly restructuring of crew priorities on a per-part basis.
