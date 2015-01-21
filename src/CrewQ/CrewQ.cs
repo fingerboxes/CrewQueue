@@ -32,12 +32,27 @@ using FingerboxLib;
 
 namespace CrewQ
 {
-    [KSPAddon(KSPAddon.Startup.EditorAny, true)]
+    [KSPAddon(KSPAddon.Startup.EveryScene, true)]
     public class CrewQ : MonoBehaviourExtended
     {
+        // Singleton boilerplate
+        private static CrewQ _instance;
+        public static CrewQ instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = GameObject.FindObjectOfType<CrewQ>();
+                }
+                return _instance;
+            }
+        }
+
         protected override void Awake()
         {
-            Logging.Debug("Testing!");   
+            DontDestroyOnLoad(this);
+            _instance = this;
         }
     }
 }

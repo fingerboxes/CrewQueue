@@ -58,9 +58,12 @@ namespace FingerboxLib
 
         public static void Log(MessageType type, string message)
         {
-            string callingMethod = new StackTrace().GetFrame(1).GetMethod().Name;
+            string callingMethod = new StackTrace().GetFrame(2).GetMethod().Name;
 
-            UnityEngine.Debug.Log("[" + DateTime.Now + "][" + type + "][" + callingMethod + "][" + message + "]"); 
+            StackFrame frame = new StackFrame(2);
+            var method = frame.GetMethod();
+
+            UnityEngine.Debug.Log("[" + DateTime.Now + "][" + type + "][" + method.DeclaringType.Namespace + "." + method.Name + "][" + message + "]"); 
         }
     }
 }

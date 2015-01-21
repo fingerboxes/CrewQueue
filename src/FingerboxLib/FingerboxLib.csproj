@@ -45,6 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MiscUtils.cs" />
     <Compile Include="KSPPluginFramework\ConfigNodeStorage.cs" />
     <Compile Include="KSPPluginFramework\ConfigNodeUtils.cs" />
     <Compile Include="KSPPluginFramework\ExtensionsUnity.cs" />

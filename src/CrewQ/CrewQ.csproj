@@ -46,7 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CrewQ.cs" />
+    <Compile Include="CrewQData.cs" />
+    <Compile Include="EditorScene.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpaceCenter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FingerboxLib\FingerboxLib.csproj">
