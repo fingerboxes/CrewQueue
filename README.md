@@ -15,3 +15,19 @@ Major Goals
 Minor Goals/Medium-Term features
 * Option to allow the 'vacation period' to be a *hard lock*, preventing assignment of that Crew Member.
 * Editor GUI to allow on-the-fly restructuring of crew priorities on a per-part basis.
+
+Planned Features
+* Anti-'Spam In a Can'
+ * Assign habitation value to parts
+   * possibly floor(Part.CrewCapacity*(.2*difficultyScalar))
+   * possibly per-part custom configuration, encourge dedicated habitation parts
+   * CLS support?
+ * Apply crew debuffs based on degree of deviation between 'ideal' habitation : crew count ratio
+   * XP penalties (and skill rank de-leveling)
+   * Quit upon vessel recovery
+   * Refuse to control vessel (could be countered by having a probe core)
+   * Refuse to act as a RemoteTech command node
+   * Refuse to go EVA
+   * Refuse to perform science experiments (manual experiment flagging needed, some could be done by automation)
+   * _Maybe_: Crew goes missing; implied 'attempted EVA back to Kerbin' or 'vehement disagreement about snack distribution'
+ * Enhanced rate of penalty growth on solo missions
