@@ -23,11 +23,11 @@ Planned Features
    * possibly per-part custom configuration, encourge dedicated habitation parts
    * CLS support?
  * Apply crew debuffs based on degree of deviation between 'ideal' habitation : crew count ratio
-   * XP penalties (and skill rank de-leveling)
-   * Quit upon vessel recovery
-   * Refuse to control vessel (could be countered by having a probe core)
-   * Refuse to act as a RemoteTech command node
-   * Refuse to go EVA
-   * Refuse to perform science experiments (manual experiment flagging needed, some could be done by automation)
-   * _Maybe_: Crew goes missing; implied 'attempted EVA back to Kerbin' or 'vehement disagreement about snack distribution'
+    * XP penalties (and skill rank de-leveling)
+    * Quit upon vessel recovery
+    * Refuse to control vessel (could be countered by having a probe core)
+    * Refuse to act as a RemoteTech command node
+    * Refuse to go EVA
+    * Refuse to perform science experiments (manual experiment flagging needed, some could be done by automation)
+    * _Maybe_: Crew goes missing; implied 'attempted EVA back to Kerbin' or 'vehement disagreement about snack distribution'
  * Enhanced rate of penalty growth on solo missions
