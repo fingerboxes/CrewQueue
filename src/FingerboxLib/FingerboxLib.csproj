@@ -45,6 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interface\ProtoAppLauncher.cs" />
     <Compile Include="MiscUtils.cs" />
     <Compile Include="KSPPluginFramework\ConfigNodeStorage.cs" />
     <Compile Include="KSPPluginFramework\ConfigNodeUtils.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="Logging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y $(TargetPath) $(TargetDir)..\..\..\..\GameData\Fingerboxes\Common\Plugins\</PostBuildEvent>
