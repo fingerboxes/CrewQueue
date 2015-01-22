@@ -19,9 +19,9 @@ Minor Goals/Medium-Term features
 Planned Features
 * Anti-'Spam In a Can'
  * Assign habitation value to parts
-   * possibly floor(Part.CrewCapacity*(.2*difficultyScalar))
-   * possibly per-part custom configuration, encourge dedicated habitation parts
-   * CLS support?
+    * possibly floor(Part.CrewCapacity*(.2*difficultyScalar))
+    * possibly per-part custom configuration, encourge dedicated habitation parts
+    * CLS support?
  * Apply crew debuffs based on degree of deviation between 'ideal' habitation : crew count ratio
     * XP penalties (and skill rank de-leveling)
     * Quit upon vessel recovery
