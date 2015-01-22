@@ -22,7 +22,9 @@ namespace CrewQ
         }
 
         protected override void Update()
-        {            
+        {
+            base.Update(); // Important
+
             if (rootExists && !cleanedRoot)
             {
                 CleanManifest();
@@ -37,7 +39,6 @@ namespace CrewQ
         // KSP Events
         protected void onEditorShipModified(ShipConstruct ship)
         {
-            Logging.Debug("Entering Method");
             rootExists = CheckRoot(ship);                       
         }
 
@@ -45,7 +46,12 @@ namespace CrewQ
         {
             if (screen == EditorScreen.Crew)
             {
-                HijackFillButton();
+                HijackUIElements();
+                RemapCrew = true;
+            }
+            else
+            {
+                RemapCrew = false;
             }
         }
 
