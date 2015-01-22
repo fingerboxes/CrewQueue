@@ -35,6 +35,9 @@ namespace CrewQ
     [KSPAddon(KSPAddon.Startup.EveryScene, true)]
     public class CrewQ : MonoBehaviourExtended
     {
+        // ITS OVER NINE THOUSAND!!!!111
+        private const ProtoCrewMember.RosterStatus VACATION = (ProtoCrewMember.RosterStatus)9001;
+
         // Singleton boilerplate
         private static CrewQ _instance;
         public static CrewQ instance
@@ -53,6 +56,43 @@ namespace CrewQ
         {
             DontDestroyOnLoad(this);
             _instance = this;
+        }
+
+        // Our methods
+
+        public void SuppressVacationingCrew()
+        {
+            if (CrewQData.instance.VacationHardLock)
+            {
+                Logging.Debug("VacationHardLock is enabled, suppressing crew...");
+                List<ProtoCrewMember> vacationList = GetVacationingCrew();
+
+                foreach (ProtoCrewMember crew in vacationList)
+                {
+                    crew.rosterStatus = VACATION;
+                }
+            }
+            else
+            {
+                Logging.Debug("VacationHardLock is disabled");
+            }
+        }
+
+        public void UnsuppressVacationingCrew()
+        {
+            // This doesn't need to be qualified, doing so might introduce bugs.
+
+            List<ProtoCrewMember> vacationList = GetVacationingCrew();
+
+            foreach (ProtoCrewMember crew in vacationList)
+            {
+                crew.rosterStatus = ProtoCrewMember.RosterStatus.Available;
+            }
+        }
+
+        List<ProtoCrewMember> GetVacationingCrew()
+        {
+            return CrewQData.instance.CrewOnVacation;
         }
     }
 }
