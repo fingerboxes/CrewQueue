@@ -34,20 +34,20 @@ using FingerboxLib;
 namespace CrewQ
 {
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, new GameScenes[] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.FLIGHT })]
-    class CrewQData : ScenarioModule
+    class CrewQDataStore : ScenarioModule
     {
         public const string VACATION_LABEL_SOFT = "Available for Emergency Missions";
         public const string VACATION_LABEL_HARD = "Not Available for Missions";
 
         // Singleton boilerplate
-        private static CrewQData _instance;
-        public static CrewQData instance
+        private static CrewQDataStore _instance;
+        public static CrewQDataStore instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = CrewQData.FindObjectOfType<CrewQData>();
+                    _instance = CrewQDataStore.FindObjectOfType<CrewQDataStore>();
                 }
                 return _instance;
             }
@@ -59,7 +59,7 @@ namespace CrewQ
         [KSPField(isPersistant = true)]
         public bool VacationHardLock;
 
-        public List<ProtoCrewMember> CrewOnVacation;       
+        public List<ProtoCrewMember> CrewOnVacation = new List<ProtoCrewMember>();       
 
         public override void OnAwake()
         {

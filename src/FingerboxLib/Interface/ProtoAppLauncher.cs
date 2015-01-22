@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+using System;
 using KSPPluginFramework;
 using UnityEngine;
 
@@ -58,19 +59,30 @@ namespace FingerboxLib.Interface
             }
         }
 
-        public Vector2 ScreenPosition
+        public Vector3 ScreenPosition
         {
             get
             {
-                return Camera.main.WorldToScreenPoint(button.transform.position);
+                int x = (int)((Screen.width / 2) + 19 + Math.Ceiling(button.transform.position.x));
+                int y = ApplicationLauncher.Instance.IsPositionedAtTop ? 38 : (int)(Screen.height - 38);
+
+                return new Vector2(x, y);
             }
         }
+
+        public RectOffset DefaultOffset
+        {
+            get
+            {
+                return ApplicationLauncher.Instance.IsPositionedAtTop ? new RectOffset(5, 5, 43, 43) : new RectOffset(5, 70, 43, 43);
+            }
+        } 
         
         private ApplicationLauncherButton button;
 
         public abstract Texture AppLauncherIcon { get; }
         public abstract ApplicationLauncher.AppScenes Visibility { get; set; }
-
+        
         protected override void Awake()
         {
             _instance = this;
@@ -101,6 +113,8 @@ namespace FingerboxLib.Interface
 
                 appLauncher.EnableMutuallyExclusive(button);
             }
+
+            onGUIApplicationLauncherReady();
         }
 
         void _onGameSceneLoadRequested(GameScenes scene)
@@ -112,6 +126,8 @@ namespace FingerboxLib.Interface
                 button = null;
             }
         }
+
+        virtual protected void onGUIApplicationLauncherReady() { }
 
         virtual protected void OnAwake() { }
 

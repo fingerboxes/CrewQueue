@@ -74,7 +74,7 @@ namespace CrewQ.Interface
                         pcm.RemoveCrewFromSeat(pcm.GetCrewSeat(cm));
 
                         // TODO - replace the crew with our selections
-                        if (CrewQData.instance.DoCustomAssignment)
+                        if (CrewQDataStore.instance.DoCustomAssignment)
                         {
                             
                         }
@@ -101,7 +101,7 @@ namespace CrewQ.Interface
             if (ptr.evt == POINTER_INFO.INPUT_EVENT.TAP)
             {
                 Logging.Debug("Fill Button Hijack Success!");
-                if (CrewQData.instance.DoCustomAssignment)
+                if (CrewQDataStore.instance.DoCustomAssignment)
                 {
                     // TODO - replace the crew with our selections
                 }

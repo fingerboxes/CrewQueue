@@ -62,7 +62,7 @@ namespace CrewQ
 
         public void SuppressVacationingCrew()
         {
-            if (CrewQData.instance.VacationHardLock)
+            if (CrewQDataStore.instance.VacationHardLock)
             {
                 Logging.Debug("VacationHardLock is enabled, suppressing crew...");
                 List<ProtoCrewMember> vacationList = GetVacationingCrew();
@@ -92,7 +92,7 @@ namespace CrewQ
 
         List<ProtoCrewMember> GetVacationingCrew()
         {
-            return CrewQData.instance.CrewOnVacation;
+            return CrewQDataStore.instance.CrewOnVacation;
         }
     }
 }

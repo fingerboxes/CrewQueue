@@ -35,7 +35,7 @@ namespace CrewQ.Interface
 {
     [KSPAddon(KSPAddon.Startup.EveryScene,true)]
     class AppLauncher : FingerboxLib.Interface.ProtoAppLauncher
-    {
+    {        
         public override Texture AppLauncherIcon
         {
             get { return GameDatabase.Instance.GetTexture("Fingerboxes/CrewQ/Icons/appLauncher", false); }
@@ -51,6 +51,23 @@ namespace CrewQ.Interface
             {
                 throw new NotImplementedException();
             }
+        }
+
+        private SettingsWindow settingsWindow;
+
+        protected override void onGUIApplicationLauncherReady()
+        {
+            settingsWindow = gameObject.AddComponent<SettingsWindow>();
+        }
+
+        protected override void OnClick()
+        {
+            settingsWindow.Visible = true;
+        }
+
+        protected override void OnUnclick()
+        {
+            settingsWindow.Visible = false;
         }
     }
 }

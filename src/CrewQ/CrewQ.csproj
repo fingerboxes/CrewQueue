@@ -46,9 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CrewQ.cs" />
-    <Compile Include="CrewQData.cs" />
+    <Compile Include="CrewQDataStore.cs" />
     <Compile Include="Interface\AppLauncher.cs" />
     <Compile Include="Interface\EditorModule.cs" />
+    <Compile Include="Interface\SettingsWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interface\SceneModule.cs" />
     <Compile Include="Interface\SpaceCenterModule.cs" />
