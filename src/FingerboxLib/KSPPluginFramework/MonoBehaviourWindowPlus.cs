@@ -107,13 +107,13 @@ namespace KSPPluginFramework
         }
 
         /// <summary>
-        /// Draws a Toggle Button and sets the boolean variable to the state of the button
+        /// Draws a Toggle Button and sets the boolean variable to the state of the _button
         /// </summary>
         /// <param name="blnVar">Boolean variable to set and store result</param>
         /// <param name="ButtonText"></param>
         /// <param name="style"></param>
         /// <param name="options"></param>
-        /// <returns>True when the button state has changed</returns>
+        /// <returns>True when the _button state has changed</returns>
         protected static Boolean DrawToggle(ref Boolean blnVar, String ButtonText, GUIStyle style, params GUILayoutOption[] options)
         {
             Boolean blnOld = blnVar;
@@ -401,7 +401,7 @@ namespace KSPPluginFramework
                 return retStyle;
             }
 
-            //Draw the button behind everything else to catch the first mouse click
+            //Draw the _button behind everything else to catch the first mouse click
             public void DrawBlockingSelector()
             {
                 //do we need to draw the blocker
@@ -448,7 +448,7 @@ namespace KSPPluginFramework
                 }
             }
 
-            //Draw the actual button for the list
+            //Draw the actual _button for the list
             public Boolean DrawButton(Rect buttonRect)
             {
                 Boolean blnReturn = false;
@@ -469,7 +469,7 @@ namespace KSPPluginFramework
 
                 if (blnReturn) ListVisible = !ListVisible;
 
-                //get the drawn button rectangle
+                //get the drawn _button rectangle
                 if (Event.current.type == EventType.repaint)
                     rectButton = buttonRect;
                 //draw a dropdown symbol on the right edge

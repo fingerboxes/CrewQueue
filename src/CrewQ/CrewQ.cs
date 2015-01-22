@@ -62,32 +62,32 @@ namespace CrewQ
 
         public void SuppressVacationingCrew()
         {
-            if (CrewQDataStore.instance.VacationHardLock)
-            {
-                Logging.Debug("VacationHardLock is enabled, suppressing crew...");
-                List<ProtoCrewMember> vacationList = GetVacationingCrew();
+            //if (CrewQDataStore.instance.settingVacationHardlock)
+            //{
+            //    Logging.Debug("settingVacationHardlock is enabled, suppressing crew...");
+            //    List<ProtoCrewMember> vacationList = GetVacationingCrew();
 
-                foreach (ProtoCrewMember crew in vacationList)
-                {
-                    crew.rosterStatus = VACATION;
-                }
-            }
-            else
-            {
-                Logging.Debug("VacationHardLock is disabled");
-            }
+            //    foreach (ProtoCrewMember crew in vacationList)
+            //    {
+            //        crew.rosterStatus = VACATION;
+            //    }
+            //}
+            //else
+            //{
+            //    Logging.Debug("settingVacationHardlock is disabled");
+            //}
         }
 
         public void UnsuppressVacationingCrew()
         {
-            // This doesn't need to be qualified, doing so might introduce bugs.
+            //// This doesn't need to be qualified, doing so might introduce bugs.
 
-            List<ProtoCrewMember> vacationList = GetVacationingCrew();
+            //List<ProtoCrewMember> vacationList = GetVacationingCrew();
 
-            foreach (ProtoCrewMember crew in vacationList)
-            {
-                crew.rosterStatus = ProtoCrewMember.RosterStatus.Available;
-            }
+            //foreach (ProtoCrewMember crew in vacationList)
+            //{
+            //    crew.rosterStatus = ProtoCrewMember.RosterStatus.Available;
+            //}
         }
 
         List<ProtoCrewMember> GetVacationingCrew()

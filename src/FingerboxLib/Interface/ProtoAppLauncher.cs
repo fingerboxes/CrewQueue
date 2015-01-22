@@ -48,9 +48,9 @@ namespace FingerboxLib.Interface
         {
             get
             {
-                if (instance.button != null)
+                if (instance._button != null)
                 {
-                    return ApplicationLauncher.Instance.DetermineVisibility(instance.button);
+                    return ApplicationLauncher.Instance.DetermineVisibility(instance._button);
                 }
                 else
                 {
@@ -63,7 +63,7 @@ namespace FingerboxLib.Interface
         {
             get
             {
-                int x = (int)((Screen.width / 2) + 19 + Math.Ceiling(button.transform.position.x));
+                int x = (int)((Screen.width / 2) + 19 + Math.Ceiling(_button.transform.position.x));
                 int y = ApplicationLauncher.Instance.IsPositionedAtTop ? 38 : (int)(Screen.height - 38);
 
                 return new Vector2(x, y);
@@ -78,8 +78,8 @@ namespace FingerboxLib.Interface
             }
         } 
         
-        private ApplicationLauncherButton button;
-
+        private ApplicationLauncherButton _button;
+       
         public abstract Texture AppLauncherIcon { get; }
         public abstract ApplicationLauncher.AppScenes Visibility { get; set; }
         
@@ -91,27 +91,34 @@ namespace FingerboxLib.Interface
             GameEvents.onGUIApplicationLauncherReady.Add(_onGUIApplicationLauncherReady);
             GameEvents.onGameSceneLoadRequested.Add(_onGameSceneLoadRequested);
 
-            Visibility = ApplicationLauncher.AppScenes.NEVER;
-
             OnAwake();
+        }
+
+        protected override void Update()
+        {
+            if (_button != null)
+            {
+                _button.VisibleInScenes = Visibility;
+                ApplicationLauncher.Instance.DetermineVisibility(_button);    
+            }
         }
 
         void _onGUIApplicationLauncherReady()
         {
-            if (button == null)
+            if (_button == null)
             {
                 ApplicationLauncher appLauncher = ApplicationLauncher.Instance;
 
-                button = appLauncher.AddModApplication(OnClick,         // true
-                                                       OnUnclick,       // false
-                                                       OnHover,         // hover
-                                                       OnUnhover,       // unhover
-                                                       OnEnable,        // enable? what does this mean
-                                                       OnDisable,       // disable? what does this mean
-                                                       Visibility,
-                                                       AppLauncherIcon);
+                _button = appLauncher.AddModApplication(OnClick,         // true
+                                                        OnUnclick,       // false
+                                                        OnHover,         // hover
+                                                        OnUnhover,       // unhover
+                                                        OnEnable,        // enable? what does this mean
+                                                        OnDisable,       // disable? what does this mean
+                                                        Visibility,
+                                                        AppLauncherIcon);
 
-                appLauncher.EnableMutuallyExclusive(button);
+                appLauncher.EnableMutuallyExclusive(_button);
             }
 
             onGUIApplicationLauncherReady();
@@ -119,13 +126,18 @@ namespace FingerboxLib.Interface
 
         void _onGameSceneLoadRequested(GameScenes scene)
         {
-            if (button != null)
+            Logging.Debug("Entering Method.");
+            if (_button != null)
             {
-                button.SetFalse();
-                ApplicationLauncher.Instance.RemoveModApplication(button);
-                button = null;
+                _button.SetFalse();
+                ApplicationLauncher.Instance.RemoveModApplication(_button);
+                _button = null;
             }
+
+            onGameSceneLoadRequested(scene);
         }
+
+        virtual protected void onGameSceneLoadRequested(GameScenes scene) { }
 
         virtual protected void onGUIApplicationLauncherReady() { }
 
@@ -137,7 +149,7 @@ namespace FingerboxLib.Interface
 
         virtual protected void OnHover() { }
 
-        virtual protected void OnUnhover() {}
+        virtual protected void OnUnhover() { }
 
         virtual protected void OnEnable() { }
 

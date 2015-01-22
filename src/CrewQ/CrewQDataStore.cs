@@ -54,10 +54,16 @@ namespace CrewQ
         }
 
         [KSPField(isPersistant = true)]
-        public bool DoCustomAssignment = false;
+        public bool settingHideSettingsIcon = false;
 
         [KSPField(isPersistant = true)]
-        public bool VacationHardLock;
+        public bool settingUseCrewCompositions = true;
+
+        [KSPField(isPersistant = true)]
+        public bool settingDoCustomAssignment = true;
+
+        [KSPField(isPersistant = true)]
+        public bool settingVacationHardlock = false;
 
         public List<ProtoCrewMember> CrewOnVacation = new List<ProtoCrewMember>();       
 

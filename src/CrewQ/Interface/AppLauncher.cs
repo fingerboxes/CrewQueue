@@ -45,7 +45,10 @@ namespace CrewQ.Interface
         {
             get
             {
-                return ApplicationLauncher.AppScenes.SPACECENTER;
+                bool b = (CrewQDataStore.instance != null && settingsWindow != null) &&
+                         (CrewQDataStore.instance.settingHideSettingsIcon == false || settingsWindow.Visible == true);
+
+                return b ? ApplicationLauncher.AppScenes.SPACECENTER : ApplicationLauncher.AppScenes.NEVER;
             }
             set
             {
@@ -57,7 +60,7 @@ namespace CrewQ.Interface
 
         protected override void onGUIApplicationLauncherReady()
         {
-            settingsWindow = gameObject.AddComponent<SettingsWindow>();
+            settingsWindow = AddComponent<SettingsWindow>();
         }
 
         protected override void OnClick()
