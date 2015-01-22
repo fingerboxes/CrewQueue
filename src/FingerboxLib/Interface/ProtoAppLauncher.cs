@@ -22,15 +22,8 @@
  * THE SOFTWARE.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using UnityEngine;
 using KSPPluginFramework;
-using FingerboxLib;
-
+using UnityEngine;
 
 namespace FingerboxLib.Interface
 {
@@ -49,6 +42,29 @@ namespace FingerboxLib.Interface
                 return _instance;
             }
         }
+
+        public bool IconVisible
+        {
+            get
+            {
+                if (instance.button != null)
+                {
+                    return ApplicationLauncher.Instance.DetermineVisibility(instance.button);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public Vector2 ScreenPosition
+        {
+            get
+            {
+                return Camera.main.WorldToScreenPoint(button.transform.position);
+            }
+        }
         
         private ApplicationLauncherButton button;
 
@@ -60,13 +76,15 @@ namespace FingerboxLib.Interface
             _instance = this;
             DontDestroyOnLoad(this);
 
-            GameEvents.onGUIApplicationLauncherReady.Add(onGUIApplicationLauncherReady);
-            GameEvents.onGUIApplicationLauncherDestroyed.Add(onGUIApplicationLauncherDestroyed);
+            GameEvents.onGUIApplicationLauncherReady.Add(_onGUIApplicationLauncherReady);
+            GameEvents.onGameSceneLoadRequested.Add(_onGameSceneLoadRequested);
 
-            Visibility = ApplicationLauncher.AppScenes.SPACECENTER;
+            Visibility = ApplicationLauncher.AppScenes.NEVER;
+
+            OnAwake();
         }
 
-        void onGUIApplicationLauncherReady()
+        void _onGUIApplicationLauncherReady()
         {
             if (button == null)
             {
@@ -85,11 +103,17 @@ namespace FingerboxLib.Interface
             }
         }
 
-        void onGUIApplicationLauncherDestroyed()
+        void _onGameSceneLoadRequested(GameScenes scene)
         {
-            button.SetFalse();
-            button = null;
+            if (button != null)
+            {
+                button.SetFalse();
+                ApplicationLauncher.Instance.RemoveModApplication(button);
+                button = null;
+            }
         }
+
+        virtual protected void OnAwake() { }
 
         virtual protected void OnClick() { }
 
