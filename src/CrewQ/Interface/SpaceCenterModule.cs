@@ -54,22 +54,28 @@ namespace CrewQ.Interface
             if (ACSpawned)
             {
                 Logging.Debug("AC is spawned...");
-                List<CrewItemContainer> CrewItemContainers = GameObject.FindObjectsOfType<CrewItemContainer>().Where(x => x.GetCrewRef().rosterStatus == ProtoCrewMember.RosterStatus.Available).ToList();
-                
+                IEnumerable<CrewItemContainer> CrewItemContainers = GameObject.FindObjectsOfType<CrewItemContainer>().Where(x => x.GetCrewRef().rosterStatus == ProtoCrewMember.RosterStatus.Available);
+                IEnumerable<CrewNode> VacationNodes = CrewQDataStore.instance.CrewList.Where(x => x.vacation);
+
                 foreach (CrewItemContainer container in CrewItemContainers)
                 {
-                    if (CrewQDataStore.instance.CrewList.Where(x => x.vacation).Select(x => x.crewRef).Contains(container.GetCrewRef()))
+                    if (VacationNodes.Select(x => x.crewRef).Contains(container.GetCrewRef()))
                     {
                         Logging.Debug("relabeling: " + container.GetName());
+                        string label;
 
                         if (CrewQDataStore.instance.settingVacationHardlock)
                         {
-                            container.SetLabel(CrewQDataStore.VACATION_LABEL_HARD);
+                            label = CrewQDataStore.VACATION_LABEL_HARD;
                         }
                         else
                         {
-                            container.SetLabel(CrewQDataStore.VACATION_LABEL_SOFT);
+                            label = CrewQDataStore.VACATION_LABEL_SOFT;
                         }
+
+                        label = label + "\t\t Ready In: " + Utilities.GetColonFormattedTime(VacationNodes.First(x => x.crewRef == container.GetCrewRef()).remaining);
+
+                        container.SetLabel(label);
                     }
                 }
             }

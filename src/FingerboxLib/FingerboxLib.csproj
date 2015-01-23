@@ -45,6 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Interface\ProtoAppLauncher.cs" />
     <Compile Include="MiscUtils.cs" />
     <Compile Include="KSPPluginFramework\ConfigNodeStorage.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="KSPPluginFramework\SkinsLibrary.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -68,12 +68,18 @@ namespace CrewQ
         [KSPField(isPersistant = true)]
         public bool settingRemoveDefaultCrews = true;
 
-        public List<VacationCrewNode> CrewList;       
+        [KSPField(isPersistant = true)]
+        public double settingVacationScalar = 0.1;
+
+        [KSPField(isPersistant = true)]
+        public int settingMinimumVacationDays = 15;
+
+        public List<CrewNode> CrewList;       
 
         public override void OnAwake()
         {
             _instance = this;
-            CrewList = new List<VacationCrewNode>();
+            CrewList = new List<CrewNode>();
         }
 
         public override void OnLoad(ConfigNode node)
@@ -86,25 +92,30 @@ namespace CrewQ
 
                 foreach (ConfigNode e in elements)
                 {
-                    CrewList.Add(new VacationCrewNode(e));
+                    CrewList.Add(new CrewNode(e));
                 }
             }
         }
 
         public override void OnSave(ConfigNode node)
         {
+            Logging.Debug("Attempting to Save..");
+
+            node.RemoveNode("CrewList");
             ConfigNode CrewListNode = new ConfigNode("CrewList");
 
-            foreach (VacationCrewNode n in CrewList)
-            {                
-                CrewListNode.AddNode(n.asNode);
+            foreach (CrewNode v in CrewList)
+            {
+                CrewListNode.AddNode(v.asNode);
             }
 
             node.AddNode(CrewListNode);
+
+            Logging.Debug("Saved...");
         }
     }
 
-    public class VacationCrewNode
+    public class CrewNode
     {
         public string name;
         public double expiration;
@@ -122,6 +133,14 @@ namespace CrewQ
             }
         }
 
+        public double remaining
+        {
+            get
+            {
+                return expiration - Planetarium.GetUniversalTime();
+            }
+        }
+
         public ProtoCrewMember crewRef
         {
             get
@@ -134,17 +153,17 @@ namespace CrewQ
         {
             get
             {
-                return expiration > HighLogic.CurrentGame.UniversalTime;
+                return expiration > Planetarium.GetUniversalTime();
             }
         }
 
-        public VacationCrewNode(string name, double expiration)
+        public CrewNode(string name, double expiration)
         {
             this.name = name;
             this.expiration = expiration;
         }
 
-        public VacationCrewNode(ConfigNode n)
+        public CrewNode(ConfigNode n)
         {
             name = n.GetValue("name");
             expiration = Double.Parse(n.GetValue("expiration"));

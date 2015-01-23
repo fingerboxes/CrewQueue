@@ -38,6 +38,7 @@ namespace CrewQ
     {
         // ITS OVER NINE THOUSAND!!!!111
         private const ProtoCrewMember.RosterStatus VACATION = (ProtoCrewMember.RosterStatus)9001;
+        private const double KERBAL_DAY = 21600;
 
         // Singleton boilerplate
         private static CrewQ _instance;
@@ -54,6 +55,7 @@ namespace CrewQ
         }
 
         private bool releaseOnce;
+        private double lastMissionTime;
 
         protected override void Awake()
         {
@@ -64,6 +66,8 @@ namespace CrewQ
             GameEvents.onKerbalStatusChange.Add(onKerbalStatusChange);
             GameEvents.onKerbalRemoved.Add(onKerbalRemoved);
             GameEvents.onLevelWasLoaded.Add(onLevelWasLoaded);
+            GameEvents.OnVesselRecoveryRequested.Add(onVesselRecoveryRequested);
+
             Logging.Debug("Loaded");
         }
 
@@ -80,6 +84,11 @@ namespace CrewQ
             }
         }
 
+        void onVesselRecoveryRequested(Vessel vessel)
+        {
+            lastMissionTime = vessel.missionTime;
+        }
+
         void onKerbalStatusChange(ProtoCrewMember kerbal, ProtoCrewMember.RosterStatus oldStatus, ProtoCrewMember.RosterStatus newStatus)
         {
             Logging.Debug("Kerbal Status Change: " + kerbal.name + " - " + oldStatus + ":" + newStatus);
@@ -87,7 +96,9 @@ namespace CrewQ
             {
                 if (oldStatus == ProtoCrewMember.RosterStatus.Assigned && newStatus == ProtoCrewMember.RosterStatus.Available)
                 {
-                    CrewQDataStore.instance.CrewList.Add(new VacationCrewNode(kerbal.name, HighLogic.CurrentGame.UniversalTime + 10000d));
+                    double vacationTime = lastMissionTime * CrewQDataStore.instance.settingVacationScalar < (KERBAL_DAY * CrewQDataStore.instance.settingMinimumVacationDays) ? lastMissionTime * CrewQDataStore.instance.settingVacationScalar : (KERBAL_DAY * CrewQDataStore.instance.settingMinimumVacationDays);
+
+                    CrewQDataStore.instance.CrewList.Add(new CrewNode(kerbal.name, (Planetarium.GetUniversalTime() + lastMissionTime)));
                 }
             }
         }
