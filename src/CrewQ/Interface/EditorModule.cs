@@ -39,16 +39,35 @@ namespace CrewQ.Interface
     {
         bool rootExists, cleanedRoot;
 
+        // Monobehaviour Methods
         protected override void Awake()
         {
-            GameEvents.onEditorShipModified.Add(onEditorShipModified);
-            GameEvents.onEditorScreenChange.Add(onEditorScreenChanged);
+            GameEvents.onEditorShipModified.Add(OnEditorShipModified);
+            GameEvents.onEditorScreenChange.Add(OnEditorScreenChanged);
         }
 
-        protected override void Update()
+        // KSP Events
+        protected void OnEditorShipModified(ShipConstruct ship)
         {
-            base.Update(); // Important
+            rootExists = CheckRoot(ship);                       
+        }
 
+        protected void OnEditorScreenChanged(EditorScreen screen)
+        {
+            if (screen == EditorScreen.Crew)
+            {
+                RemapFillButton();
+                RemapCrew = true;
+            }
+            else
+            {
+                RemapCrew = false;
+            }
+        }
+
+        // Our methods
+        protected override void OnUpdate()
+        {
             if (rootExists && !cleanedRoot)
             {
                 CleanManifest();
@@ -61,27 +80,6 @@ namespace CrewQ.Interface
 
             CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
         }
-
-        // KSP Events
-        protected void onEditorShipModified(ShipConstruct ship)
-        {
-            rootExists = CheckRoot(ship);                       
-        }
-
-        protected void onEditorScreenChanged(EditorScreen screen)
-        {
-            if (screen == EditorScreen.Crew)
-            {
-                HijackUIElements();
-                RemapCrew = true;
-            }
-            else
-            {
-                RemapCrew = false;
-            }
-        }
-
-        // Our methods
 
         protected bool CheckRoot(ShipConstruct ship)
         {

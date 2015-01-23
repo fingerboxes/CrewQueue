@@ -29,12 +29,13 @@ using System.Text;
 
 using UnityEngine;
 using FingerboxLib;
+using FingerboxLib.Interface;
 using KSPPluginFramework;
 
 namespace CrewQ.Interface
 {
     [KSPAddon(KSPAddon.Startup.EveryScene,true)]
-    class AppLauncher : FingerboxLib.Interface.ProtoAppLauncher
+    class AppLauncher : ProtoAppLauncher
     {        
         public override Texture AppLauncherIcon
         {
@@ -45,10 +46,10 @@ namespace CrewQ.Interface
         {
             get
             {
-                bool b = (CrewQDataStore.instance != null && settingsWindow != null) &&
-                         (CrewQDataStore.instance.settingHideSettingsIcon == false || settingsWindow.Visible == true);
+                bool coalescedCondition = (CrewQData.Instance != null && settingsWindow != null) &&
+                                          (CrewQData.Instance.settingHideSettingsIcon == false || settingsWindow.Visible == true);
 
-                return b ? ApplicationLauncher.AppScenes.SPACECENTER : ApplicationLauncher.AppScenes.NEVER;
+                return coalescedCondition ? ApplicationLauncher.AppScenes.SPACECENTER : ApplicationLauncher.AppScenes.NEVER;
             }
             set
             {

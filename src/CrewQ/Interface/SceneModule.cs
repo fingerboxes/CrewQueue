@@ -37,89 +37,89 @@ namespace CrewQ.Interface
 {
     public abstract class SceneModule : MonoBehaviourExtended
     {
-        private bool _remapCrewActive, _releaseTrigger;
+        private bool remapCrewActive, releaseTrigger;
         public bool RemapCrew
         {
             get
             {
-                return _remapCrewActive;
+                return remapCrewActive;
             }
 
             set
             {
                 if (value == false)
                 {
-                    _releaseTrigger = true;
+                    releaseTrigger = true;
                 }
-                _remapCrewActive = value;
+                remapCrewActive = value;
             }
         }
 
-        protected override void Update()
+        // Monobehaviour Methods
+        sealed protected override void Update()
         {
-            if (_remapCrewActive)
+            if (remapCrewActive)
             {
-                CrewQ.instance.SuppressCrew();
+                CrewQ.Instance.SuppressCrew();
             }
-            else if (_releaseTrigger)
+            else if (releaseTrigger)
             {
-                CrewQ.instance.ReleaseCrew();
-                _releaseTrigger = false;
-            } 
+                CrewQ.Instance.ReleaseCrew();
+                releaseTrigger = false;
+            }
+
+            OnUpdate();
         }
+
+        virtual protected void OnUpdate() { }
 
         public void CleanManifest()
         {          
-            VesselCrewManifest vcm = CMAssignmentDialog.Instance.GetManifest();
-            Logging.Debug("Obtained vcm");
+            VesselCrewManifest originalVesselManifest = CMAssignmentDialog.Instance.GetManifest();
+            IList<PartCrewManifest> partCrewManifests = originalVesselManifest.GetCrewableParts();
 
-            List<PartCrewManifest> pcmList = vcm.GetCrewableParts();
-            Logging.Debug("Obtained pcm");
-
-            if (pcmList != null && pcmList.Count > 0)
+            if (partCrewManifests != null && partCrewManifests.Count > 0)
             {
-                PartCrewManifest pcm = pcmList[0];
-                foreach (ProtoCrewMember cm in pcm.GetPartCrew())
+                PartCrewManifest partManifest = partCrewManifests[0];
+                foreach (ProtoCrewMember crewMember in partManifest.GetPartCrew())
                 {
-                    if (cm != null)
-                    {            
-                        if (CrewQDataStore.instance.settingRemoveDefaultCrews || CrewQDataStore.instance.settingDoCustomAssignment)
-                        // Clean the root part
-                        pcm.RemoveCrewFromSeat(pcm.GetCrewSeat(cm));
-
-                        // TODO - replace the crew with our selections
-                        if (CrewQDataStore.instance.settingDoCustomAssignment)
+                    if (crewMember != null)
+                    {
+                        if (CrewQData.Instance.settingRemoveDefaultCrews || CrewQData.Instance.settingDoCustomAssignment)
                         {
-                            
+                            // Clean the root part
+                            partManifest.RemoveCrewFromSeat(partManifest.GetCrewSeat(crewMember));
+
+                            // TODO - replace the crew with our selections
+                            if (CrewQData.Instance.settingDoCustomAssignment)
+                            {
+
+                            }
                         }
                     }
                 }
             }
 
-            CMAssignmentDialog.Instance.RefreshCrewLists(vcm, true, true);
+            CMAssignmentDialog.Instance.RefreshCrewLists(originalVesselManifest, true, true);
         }
 
-        public void HijackUIElements()
+        public void RemapFillButton()
         {
             BTButton[] buttons = MiscUtils.GetFields<BTButton>(CMAssignmentDialog.Instance);
-            Logging.Debug("Found some buttons, Count:" + buttons.Length);
-
-            buttons[0].AddInputDelegate(new EZInputDelegate(onFillButton));
-            Logging.Debug("Fill Button Hijack potentially successful");
+            buttons[0].AddInputDelegate(new EZInputDelegate(OnFillButton));
         }
 
-        public void onFillButton(ref POINTER_INFO ptr)
+        public void OnFillButton(ref POINTER_INFO eventPointer)
         {
-            if (ptr.evt == POINTER_INFO.INPUT_EVENT.TAP)
+            if (eventPointer.evt == POINTER_INFO.INPUT_EVENT.TAP)
             {
-                Logging.Debug("Fill Button Hijack Success!");
-                if (CrewQDataStore.instance.settingDoCustomAssignment)
+                if (CrewQData.Instance.settingDoCustomAssignment)
                 {
                     // TODO - replace the crew with our selections
                 }
                 else
                 {
-                    CMAssignmentDialog.Instance.ButtonFill(ref ptr);
+                    CMAssignmentDialog.Instance.ButtonFill(ref eventPointer);
                 }
             }
         }

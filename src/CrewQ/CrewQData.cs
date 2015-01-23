@@ -34,22 +34,19 @@ using FingerboxLib;
 namespace CrewQ
 {
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, new GameScenes[] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.TRACKSTATION })]
-    class CrewQDataStore : ScenarioModule
+    class CrewQData : ScenarioModule
     {
-        public const string VACATION_LABEL_SOFT = "Available for emergency missions";
-        public const string VACATION_LABEL_HARD = "Not available for missions";
-
         // Singleton boilerplate
-        private static CrewQDataStore _instance;
-        public static CrewQDataStore instance
+        private static CrewQData _Instance;
+        public static CrewQData Instance
         {
             get
             {
-                if (_instance == null)
+                if (_Instance == null)
                 {
-                    _instance = CrewQDataStore.FindObjectOfType<CrewQDataStore>();
+                    _Instance = CrewQData.FindObjectOfType<CrewQData>();
                 }
-                return _instance;
+                return _Instance;
             }
         }
 
@@ -78,40 +75,36 @@ namespace CrewQ
 
         public override void OnAwake()
         {
-            _instance = this;
+            _Instance = this;
             CrewList = new List<CrewNode>();
         }
 
-        public override void OnLoad(ConfigNode node)
+        public override void OnLoad(ConfigNode rootNode)
         {
-            if (node.HasNode("CrewList"))
+            if (rootNode.HasNode("CrewList"))
             {
-                ConfigNode CrewListNode = node.GetNode("CrewList");
+                ConfigNode crewListNode = rootNode.GetNode("CrewList");
 
-                ConfigNode [] elements = CrewListNode.GetNodes();
+                IEnumerable<ConfigNode> crewNodes = crewListNode.GetNodes();
 
-                foreach (ConfigNode e in elements)
+                foreach (ConfigNode crewNode in crewNodes)
                 {
-                    CrewList.Add(new CrewNode(e));
+                    CrewList.Add(new CrewNode(crewNode));
                 }
             }
         }
 
-        public override void OnSave(ConfigNode node)
+        public override void OnSave(ConfigNode rootNode)
         {
-            Logging.Debug("Attempting to Save..");
+            rootNode.RemoveNode("CrewList");
+            ConfigNode crewListNode = new ConfigNode("CrewList");
 
-            node.RemoveNode("CrewList");
-            ConfigNode CrewListNode = new ConfigNode("CrewList");
-
-            foreach (CrewNode v in CrewList)
+            foreach (CrewNode crewNode in CrewList)
             {
-                CrewListNode.AddNode(v.asNode);
+                crewListNode.AddNode(crewNode.GetConfigNode);
             }
 
-            node.AddNode(CrewListNode);
-
-            Logging.Debug("Saved...");
+            rootNode.AddNode(crewListNode);
         }
     }
 
@@ -120,20 +113,20 @@ namespace CrewQ
         public string name;
         public double expiration;
 
-        public ConfigNode asNode
+        public ConfigNode GetConfigNode
         {
             get
             {
                 ConfigNode node = new ConfigNode("KERBAL");
 
-                node.AddValue("name", name);
-                node.AddValue("expiration", expiration);
+                node.AddValue("crewName", name);
+                node.AddValue("targetExpiration", expiration);
 
                 return node;
             }
         }
 
-        public double remaining
+        public double RemainingTime
         {
             get
             {
@@ -141,7 +134,7 @@ namespace CrewQ
             }
         }
 
-        public ProtoCrewMember crewRef
+        public ProtoCrewMember ProtoCrewReference
         {
             get
             {
@@ -149,7 +142,7 @@ namespace CrewQ
             }
         }
 
-        public bool vacation
+        public bool IsOnVacation
         {
             get
             {
@@ -157,16 +150,38 @@ namespace CrewQ
             }
         }
 
-        public CrewNode(string name, double expiration)
+        public CrewNode(string crewName, double targetExpiration)
         {
-            this.name = name;
-            this.expiration = expiration;
+            name = crewName;
+            expiration = targetExpiration;
         }
 
-        public CrewNode(ConfigNode n)
+        public CrewNode(ConfigNode sourceNode)
         {
-            name = n.GetValue("name");
-            expiration = Double.Parse(n.GetValue("expiration"));
+            name = sourceNode.GetValue("crewName");
+            expiration = Double.Parse(sourceNode.GetValue("targetExpiration"));
+        }
+        
+        public override bool Equals(object obj)
+        {
+            if (obj == null || obj.GetType() != typeof(CrewNode))
+            {
+                return false;
+            }
+
+            if ((obj as CrewNode).ProtoCrewReference == this.ProtoCrewReference)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return ProtoCrewReference.GetHashCode();
         }
     }
 }

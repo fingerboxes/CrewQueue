@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CrewQ.cs" />
-    <Compile Include="CrewQDataStore.cs" />
+    <Compile Include="CrewQData.cs" />
     <Compile Include="Interface\AppLauncher.cs" />
     <Compile Include="Interface\EditorModule.cs" />
     <Compile Include="Interface\SettingsWindow.cs" />

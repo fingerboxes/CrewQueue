@@ -41,7 +41,7 @@ namespace CrewQ.Interface
         private const int COLUMN_A = BORDER_SIZE;
         private const int COLUMN_B = COLUMN_A + (WINDOW_WIDTH / 2);
 
-        private string[] toggleCaptions = { "Automatically select crew", "Crew on vacation are ineligible for missions", "Use module type crew compositions", "<color=orange>Permanently hide this menu</color>", "Remove default crews" };
+        private string[] toggleCaptions = { "Automatically select crew", "Crew on IsOnVacation are ineligible for missions", "Use module type crew compositions", "<color=orange>Permanently hide this menu</color>", "Remove default crews" };
         
         private bool toggleDoCustomAssignment, toggleVacationHardlock, toggleUseCrewCompositions, toggleHideSettingsIcon, toggleRemoveDefaultCrews;
         private string localVacationScalar = "", localMinimumVacationDays = "";
@@ -109,7 +109,7 @@ namespace CrewQ.Interface
 
         public void PreSync()
         {
-            CrewQDataStore settings = CrewQDataStore.instance;
+            CrewQData settings = CrewQData.Instance;
 
             if (settings != null)
             {
@@ -125,7 +125,7 @@ namespace CrewQ.Interface
 
         public void Sync()
         {
-            CrewQDataStore settings = CrewQDataStore.instance;
+            CrewQData settings = CrewQData.Instance;
 
             if (settings != null)
             {
@@ -161,7 +161,7 @@ namespace CrewQ.Interface
 
             InputLockManager.SetControlLock(ControlTypes.All, "CrewQSettingsWindow");
 
-            string dialogMsg = "<color=white>Are you sure that you want to <color=red>permanently remove</color> the icon for this settings menu?\n\r\nYou will only be to recover it by <color=orange>manually editing</color> your save file.</color>";
+            string dialogMsg = "<color=white>Are you sure that you want to <color=red>permanently remove</color> the icon for this settings menu?\n\nYou will only be to recover it by <color=orange>manually editing</color> your save file.</color>";
             string windowTitle = "WARNING";
 
             DialogOption[] options = { new DialogOption("Cancel", HideCancel), new DialogOption("<color=orange>Confirm</color>", HideConfirm) };

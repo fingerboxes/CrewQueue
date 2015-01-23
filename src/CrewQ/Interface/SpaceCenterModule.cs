@@ -36,7 +36,7 @@ namespace CrewQ.Interface
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     class SpaceCenterModule : SceneModule
     {
-        private bool ACSpawned;
+        private bool astronautComplexSpawned;
 
         protected override void Awake()
         {
@@ -47,35 +47,21 @@ namespace CrewQ.Interface
             GameEvents.onGUILaunchScreenDespawn.Add(onGUILaunchScreenDespawn);
         }
 
-        protected override void Update()
+        protected override void OnUpdate()
         {
-            base.Update();
-
-            if (ACSpawned)
+            if (astronautComplexSpawned)
             {
                 Logging.Debug("AC is spawned...");
-                IEnumerable<CrewItemContainer> CrewItemContainers = GameObject.FindObjectsOfType<CrewItemContainer>().Where(x => x.GetCrewRef().rosterStatus == ProtoCrewMember.RosterStatus.Available);
-                IEnumerable<CrewNode> VacationNodes = CrewQDataStore.instance.CrewList.Where(x => x.vacation);
+                IEnumerable<CrewItemContainer> crewItemContainers = GameObject.FindObjectsOfType<CrewItemContainer>().Where(x => x.GetCrewRef().rosterStatus == ProtoCrewMember.RosterStatus.Available);
+                IEnumerable<CrewNode> crewNodes = CrewQData.Instance.CrewList.Where(x => x.IsOnVacation);
 
-                foreach (CrewItemContainer container in CrewItemContainers)
+                foreach (CrewItemContainer crewContainer in crewItemContainers)
                 {
-                    if (VacationNodes.Select(x => x.crewRef).Contains(container.GetCrewRef()))
+                    if (crewNodes.Select(x => x.ProtoCrewReference).Contains(crewContainer.GetCrewRef()))
                     {
-                        Logging.Debug("relabeling: " + container.GetName());
-                        string label;
-
-                        if (CrewQDataStore.instance.settingVacationHardlock)
-                        {
-                            label = CrewQDataStore.VACATION_LABEL_HARD;
-                        }
-                        else
-                        {
-                            label = CrewQDataStore.VACATION_LABEL_SOFT;
-                        }
-
-                        label = label + "\t\t Ready In: " + Utilities.GetColonFormattedTime(VacationNodes.First(x => x.crewRef == container.GetCrewRef()).remaining);
-
-                        container.SetLabel(label);
+                        Logging.Debug("relabeling: " + crewContainer.GetName());
+                        string label ="Ready In: " + Utilities.GetFormattedTime(crewNodes.First(x => x.ProtoCrewReference == crewContainer.GetCrewRef()).RemainingTime);
+                        crewContainer.SetLabel(label);
                     }
                 }
             }
@@ -83,12 +69,12 @@ namespace CrewQ.Interface
 
         private void onGUIAstronautComplexDespawn()
         {
-            ACSpawned = false;
+            astronautComplexSpawned = false;
         }
 
         private void onGUIAstronautComplexSpawn()
         {
-            ACSpawned = true;
+            astronautComplexSpawned = true;
         }
 
         private void onGUILaunchScreenSpawn(GameEvents.VesselSpawnInfo info)
@@ -104,7 +90,7 @@ namespace CrewQ.Interface
         private void onVesselSelected(ShipTemplate shipTemplate)
         {
             CleanManifest();
-            HijackUIElements();
+            RemapFillButton();
         }
     }
 }
