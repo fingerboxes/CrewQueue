@@ -37,13 +37,13 @@ namespace CrewQ.Interface
         private const string WINDOW_TITLE = "CrewQ(ueue) Settings";
         private const int BORDER_SIZE = 5;
 
-        private const int WINDOW_WIDTH = 330, WINDOW_HEIGHT = 175;
+        private const int WINDOW_WIDTH = 330, WINDOW_HEIGHT = 205;
         private const int COLUMN_A = BORDER_SIZE;
         private const int COLUMN_B = COLUMN_A + (WINDOW_WIDTH / 2);
 
-        private string[] toggleCaptions = { "Automatically select crew", "Crew on vacation are ineligible for missions", "Use module type crew compositions", "<color=orange>Permanently hide this menu</color>" };
+        private string[] toggleCaptions = { "Automatically select crew", "Crew on vacation are ineligible for missions", "Use module type crew compositions", "<color=orange>Permanently hide this menu</color>", "Remove default crews" };
 
-        private bool toggleDoCustomAssignment, toggleVacationHardlock, toggleUseCrewCompositions, toggleHideSettingsIcon;
+        private bool toggleDoCustomAssignment, toggleVacationHardlock, toggleUseCrewCompositions, toggleHideSettingsIcon, toggleRemoveDefaultCrews;
 
         private bool pauseSync = false, popupArmed = true;
 
@@ -65,6 +65,7 @@ namespace CrewQ.Interface
 
             GUI.Box(new Rect(BORDER_SIZE, 30, WindowRect.width - (BORDER_SIZE * 2), WindowRect.height - (BORDER_SIZE * 2) - 30), "");
 
+            toggleRemoveDefaultCrews = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 165, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleRemoveDefaultCrews, toggleCaptions[4]);
             toggleDoCustomAssignment = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 135, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleDoCustomAssignment, toggleCaptions[0]);
             toggleVacationHardlock = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 105, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleVacationHardlock, toggleCaptions[1]);
             toggleUseCrewCompositions = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 75, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleUseCrewCompositions, toggleCaptions[2]);
@@ -95,6 +96,7 @@ namespace CrewQ.Interface
                 toggleDoCustomAssignment = settings.settingDoCustomAssignment;
                 toggleUseCrewCompositions = settings.settingUseCrewCompositions;
                 toggleVacationHardlock = settings.settingVacationHardlock;
+                toggleRemoveDefaultCrews = settings.settingRemoveDefaultCrews;
             }
         }
 
@@ -104,6 +106,7 @@ namespace CrewQ.Interface
 
             if (settings != null)
             {
+                settings.settingHideSettingsIcon = toggleRemoveDefaultCrews;
                 settings.settingDoCustomAssignment = toggleDoCustomAssignment;
                 settings.settingUseCrewCompositions = toggleUseCrewCompositions;
                 settings.settingVacationHardlock = toggleVacationHardlock;

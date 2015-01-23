@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 using UnityEngine;
 using KSPPluginFramework;
@@ -52,47 +53,89 @@ namespace CrewQ
             }
         }
 
+        private bool releaseOnce;
+
         protected override void Awake()
         {
+            Logging.Debug("Loading...");
             DontDestroyOnLoad(this);
             _instance = this;
+
+            GameEvents.onKerbalStatusChange.Add(onKerbalStatusChange);
+            GameEvents.onKerbalRemoved.Add(onKerbalRemoved);
+            GameEvents.onLevelWasLoaded.Add(onLevelWasLoaded);
+            Logging.Debug("Loaded");
+        }
+
+        protected override void Update()
+        {
+            if (releaseOnce)
+            {
+                Logging.Debug("Releasing crew once, just in case.");
+                ReleaseCrew();
+                if (CrewQDataStore.instance != null)
+                {
+                    releaseOnce = false;
+                }                
+            }
+        }
+
+        void onKerbalStatusChange(ProtoCrewMember kerbal, ProtoCrewMember.RosterStatus oldStatus, ProtoCrewMember.RosterStatus newStatus)
+        {
+            Logging.Debug("Kerbal Status Change: " + kerbal.name + " - " + oldStatus + ":" + newStatus);
+            if (CrewQDataStore.instance != null)
+            {
+                if (oldStatus == ProtoCrewMember.RosterStatus.Assigned && newStatus == ProtoCrewMember.RosterStatus.Available)
+                {
+                    CrewQDataStore.instance.CrewList.Add(new VacationCrewNode(kerbal.name, HighLogic.CurrentGame.UniversalTime + 10000d));
+                }
+            }
+        }
+
+        void onKerbalRemoved(ProtoCrewMember kerbal)
+        {
+            if (CrewQDataStore.instance != null)
+            {
+                CrewQDataStore.instance.CrewList.RemoveAll(x => x.crewRef == kerbal);
+            }
+        }
+
+        void onLevelWasLoaded(GameScenes scene)
+        {
+            if (scene != GameScenes.EDITOR)
+            {
+                // Just in case!
+                releaseOnce = true;
+            }
         }
 
         // Our methods
-
-        public void SuppressVacationingCrew()
+        public void SuppressCrew()
         {
-            //if (CrewQDataStore.instance.settingVacationHardlock)
-            //{
-            //    Logging.Debug("settingVacationHardlock is enabled, suppressing crew...");
-            //    List<ProtoCrewMember> vacationList = GetVacationingCrew();
+            if (CrewQDataStore.instance != null && CrewQDataStore.instance.settingVacationHardlock)
+            {
+                IEnumerable<ProtoCrewMember> suppressList = CrewQDataStore.instance.CrewList.Where(x => x.vacation == true).Select(x => x.crewRef);
 
-            //    foreach (ProtoCrewMember crew in vacationList)
-            //    {
-            //        crew.rosterStatus = VACATION;
-            //    }
-            //}
-            //else
-            //{
-            //    Logging.Debug("settingVacationHardlock is disabled");
-            //}
+                foreach (ProtoCrewMember kerbal in suppressList)
+                {
+                    Logging.Debug("Hiding: " + kerbal.name);
+                    kerbal.rosterStatus = VACATION;
+                }
+            }
         }
 
-        public void UnsuppressVacationingCrew()
+        public void ReleaseCrew()
         {
-            //// This doesn't need to be qualified, doing so might introduce bugs.
+            if (CrewQDataStore.instance != null)
+            {
+                IEnumerable<ProtoCrewMember> releaseList = CrewQDataStore.instance.CrewList.Where(x => x.crewRef.rosterStatus == VACATION).Select(x => x.crewRef);
 
-            //List<ProtoCrewMember> vacationList = GetVacationingCrew();
-
-            //foreach (ProtoCrewMember crew in vacationList)
-            //{
-            //    crew.rosterStatus = ProtoCrewMember.RosterStatus.Available;
-            //}
-        }
-
-        List<ProtoCrewMember> GetVacationingCrew()
-        {
-            return CrewQDataStore.instance.CrewOnVacation;
+                foreach (ProtoCrewMember kerbal in releaseList)
+                {
+                    Logging.Debug("Unhiding: " + kerbal.name);
+                    kerbal.rosterStatus = ProtoCrewMember.RosterStatus.Available;
+                }
+            }
         }
     }
 }

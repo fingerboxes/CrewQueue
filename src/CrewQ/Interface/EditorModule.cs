@@ -58,6 +58,8 @@ namespace CrewQ.Interface
             {
                 cleanedRoot = false;
             }
+
+            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
         }
 
         // KSP Events

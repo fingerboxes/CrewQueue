@@ -37,21 +37,34 @@ namespace CrewQ.Interface
 {
     public abstract class SceneModule : MonoBehaviourExtended
     {
-        private bool _remapCrewActive;
-        public bool RemapCrew { get; set; }
+        private bool _remapCrewActive, _releaseTrigger;
+        public bool RemapCrew
+        {
+            get
+            {
+                return _remapCrewActive;
+            }
+
+            set
+            {
+                if (value == false)
+                {
+                    _releaseTrigger = true;
+                }
+                _remapCrewActive = value;
+            }
+        }
 
         protected override void Update()
         {
             if (_remapCrewActive)
-            {   
-                CrewQ.instance.SuppressVacationingCrew();
-
-                // Refresh the listing.
-                CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
-            }
-            else
             {
-                CrewQ.instance.UnsuppressVacationingCrew();
+                CrewQ.instance.SuppressCrew();
+            }
+            else if (_releaseTrigger)
+            {
+                CrewQ.instance.ReleaseCrew();
+                _releaseTrigger = false;
             } 
         }
 
@@ -69,7 +82,8 @@ namespace CrewQ.Interface
                 foreach (ProtoCrewMember cm in pcm.GetPartCrew())
                 {
                     if (cm != null)
-                    {                    
+                    {            
+                        if (CrewQDataStore.instance.settingRemoveDefaultCrews || CrewQDataStore.instance.settingDoCustomAssignment)
                         // Clean the root part
                         pcm.RemoveCrewFromSeat(pcm.GetCrewSeat(cm));
 
@@ -81,8 +95,6 @@ namespace CrewQ.Interface
                     }
                 }
             }
-
-            
 
             CMAssignmentDialog.Instance.RefreshCrewLists(vcm, true, true);
         }

@@ -36,31 +36,63 @@ namespace CrewQ.Interface
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     class SpaceCenterModule : SceneModule
     {
-        private bool acSpawned;
+        private bool ACSpawned;
 
         protected override void Awake()
         {
             GameEvents.onGUILaunchScreenVesselSelected.Add(onVesselSelected);
             GameEvents.onGUIAstronautComplexSpawn.Add(onGUIAstronautComplexSpawn);
             GameEvents.onGUIAstronautComplexDespawn.Add(onGUIAstronautComplexDespawn);
+            GameEvents.onGUILaunchScreenSpawn.Add(onGUILaunchScreenSpawn);
+            GameEvents.onGUILaunchScreenDespawn.Add(onGUILaunchScreenDespawn);
         }
 
         protected override void Update()
         {
-            base.Update(); // Important
+            base.Update();
 
-            // TODO - Change labels of crew on vacation. Find them like this;
-            // List<CrewItemContainer> CrewItemContainers = GameObject.FindObjectsOfType<CrewItemContainer>().Where(x => x.GetCrewRef().rosterStatus == ProtoCrewMember.RosterStatus.Available).ToList();
+            if (ACSpawned)
+            {
+                Logging.Debug("AC is spawned...");
+                List<CrewItemContainer> CrewItemContainers = GameObject.FindObjectsOfType<CrewItemContainer>().Where(x => x.GetCrewRef().rosterStatus == ProtoCrewMember.RosterStatus.Available).ToList();
+                
+                foreach (CrewItemContainer container in CrewItemContainers)
+                {
+                    if (CrewQDataStore.instance.CrewList.Where(x => x.vacation).Select(x => x.crewRef).Contains(container.GetCrewRef()))
+                    {
+                        Logging.Debug("relabeling: " + container.GetName());
+
+                        if (CrewQDataStore.instance.settingVacationHardlock)
+                        {
+                            container.SetLabel(CrewQDataStore.VACATION_LABEL_HARD);
+                        }
+                        else
+                        {
+                            container.SetLabel(CrewQDataStore.VACATION_LABEL_SOFT);
+                        }
+                    }
+                }
+            }
         }
 
         private void onGUIAstronautComplexDespawn()
         {
-            acSpawned = false;
+            ACSpawned = false;
         }
 
         private void onGUIAstronautComplexSpawn()
         {
-            acSpawned = true;
+            ACSpawned = true;
+        }
+
+        private void onGUILaunchScreenSpawn(GameEvents.VesselSpawnInfo info)
+        {
+            RemapCrew = true;
+        }
+
+        private void onGUILaunchScreenDespawn()
+        {
+            RemapCrew = false;
         }
 
         private void onVesselSelected(ShipTemplate shipTemplate)
