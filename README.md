@@ -40,4 +40,4 @@ Future Plans
 ------------
 This mod is only the first in a planned series with the goal of making _time_ a resource which you must manage in the same way that you currently manage FUNds, Science!, and Reputation. There are no further plans _for this mod_, but many of the plans talked about previously are likely to appear in their own, seperate, mod, as I feel that they are too far removed from the initial design goals of this mod. I prefer a modular design to a monolithic one, and I would rather that _you, the user_ only need install the features which you want to use. 
 
-The only currently-unimplemented goals for this mod are an API, so that other mods may interact with it, and a 'lite' version that does not contain crew reassignment or vacations, simply removes crew from the VAB and Launch dialogs.
+The only currently-unimplemented goals for this mod are an API, so that other mods may interact with it, a penalty for ending a crew's vacation early (likely a longer vacation next time), and a 'lite' version that does not contain crew reassignment or vacations, simply removes crew from the VAB and Launch dialogs.
