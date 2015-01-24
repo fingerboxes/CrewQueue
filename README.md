@@ -41,3 +41,17 @@ Future Plans
 This mod is only the first in a planned series with the goal of making _time_ a resource which you must manage in the same way that you currently manage FUNds, Science!, and Reputation. There are no further plans _for this mod_, but many of the plans talked about previously are likely to appear in their own, seperate, mod, as I feel that they are too far removed from the initial design goals of this mod. I prefer a modular design to a monolithic one, and I would rather that _you, the user_ only need install the features which you want to use. 
 
 The only currently-unimplemented goals for this mod are an API, so that other mods may interact with it, a penalty for ending a crew's vacation early (likely a longer vacation next time), and a 'lite' version that does not contain crew reassignment or vacations, simply removes crew from the VAB and Launch dialogs.
+
+License
+-------
+I am fully committed to free software, and I feel that the concept of imposing licensing requirements on software in general, and mods in particular, beyond simple attribution is absurd. As such, this mod is released under the terms of the MIT License.
+
+##### TL;DR
+* You may not hold me liable for any defects in the software or damage caused by the software.
+* If you _reuse_ or _modify_ my code, you must include the copyright and license with that code, but it does not need to apply to your entire work - just the components which are based on my work.
+* You may _reuse_ or _modify_ my code.
+* You may _distribute_ my code.
+* You may _change the license_ of my code, so long as you include the original attribution and license text. In other words, you may publish a modified version of my code under a more restrictive license, but you may not publish it under a license which removes my attribution.
+* You may do any of the above for _private_, or _commercial_ purposes.
+
+As an aside, I would love to know if you find my work useful enough to modify for your own purposes. That would make my day.
