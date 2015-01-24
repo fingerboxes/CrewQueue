@@ -71,44 +71,182 @@ namespace CrewQ
         [KSPField(isPersistant = true)]
         public int settingMinimumVacationDays = 15;
 
-        public List<CrewNode> CrewList;       
+        [KSPField(isPersistant = true)]
+        public int settingMaximumVacationDays = 30;
+
+        private List<CrewNode> _CrewList;
+       
+        // Various derived rosters
+        public IEnumerable<ProtoCrewMember> CrewRoster
+        {
+            get
+            {
+                IEnumerable<ProtoCrewMember> crewRoster = HighLogic.CurrentGame.CrewRoster.Crew.Where(x => x.rosterStatus == ProtoCrewMember.RosterStatus.Available);
+
+                if (settingVacationHardlock)
+                {
+                    return crewRoster.Except(VacationingCrew);
+                }
+                else
+                {
+                    return crewRoster;
+                }
+            }
+        } 
+
+        public IEnumerable<ProtoCrewMember> VacationingCrew
+        {
+            get
+            {
+                return _CrewList.Where(x => x.IsOnVacation).Select(x => x.ProtoCrewReference).ToArray();
+            }
+        }
+
+        public IEnumerable<ProtoCrewMember> AvailableCrew
+        {
+            get
+            {
+                if (settingVacationHardlock)
+                {
+                    return CrewRoster;
+                }
+                else
+                {
+                    return CrewRoster.Except(VacationingCrew);
+                }                                
+            }
+        }
+
+        public IEnumerable<ProtoCrewMember> AvailableScientists
+        {
+            get
+            {
+                return AvailableCrew.Where(x => x.experienceTrait.Title == "Scientist");
+            }
+        }
+
+        public IEnumerable<ProtoCrewMember> AvailableEngineers
+        {
+            get
+            {
+                return AvailableCrew.Where(x => x.experienceTrait.Title == "Engineer");
+            }
+        }
+
+        public IEnumerable<ProtoCrewMember> AvailablePilots
+        {
+            get
+            {
+                return AvailableCrew.Where(x => x.experienceTrait.Title == "Pilot");
+            }
+        }
 
         public override void OnAwake()
         {
             _Instance = this;
-            CrewList = new List<CrewNode>();
+            _CrewList = new List<CrewNode>();
         }
 
+        // ScenarioModule methods
         public override void OnLoad(ConfigNode rootNode)
         {
-            if (rootNode.HasNode("CrewList"))
+            if (rootNode.HasNode("_CrewList"))
             {
-                ConfigNode crewListNode = rootNode.GetNode("CrewList");
+                ConfigNode crewListNode = rootNode.GetNode("_CrewList");
 
                 IEnumerable<ConfigNode> crewNodes = crewListNode.GetNodes();
 
                 foreach (ConfigNode crewNode in crewNodes)
                 {
-                    CrewList.Add(new CrewNode(crewNode));
+                    _CrewList.Add(new CrewNode(crewNode));
                 }
             }
         }
 
         public override void OnSave(ConfigNode rootNode)
         {
-            rootNode.RemoveNode("CrewList");
-            ConfigNode crewListNode = new ConfigNode("CrewList");
+            rootNode.RemoveNode("_CrewList");
+            ConfigNode crewListNode = new ConfigNode("_CrewList");
 
-            foreach (CrewNode crewNode in CrewList)
+            foreach (CrewNode crewNode in _CrewList)
             {
                 crewListNode.AddNode(crewNode.GetConfigNode);
             }
 
             rootNode.AddNode(crewListNode);
         }
+        
+        // Our methods
+        public void AddOrUpdateCrew(ProtoCrewMember inputProtoCrewReference, double inputVacationTime)
+        {
+            CrewNode existingCrewNode = _CrewList.FirstOrDefault(x => x.ProtoCrewReference == inputProtoCrewReference);
+
+            if (existingCrewNode != null)
+            {
+                existingCrewNode.expiration = inputVacationTime;
+            }
+            else
+            {
+                _CrewList.Add(new CrewNode(inputProtoCrewReference.name, (Planetarium.GetUniversalTime() + inputVacationTime)));
+            }
+        }
+
+        public void RemoveCrew(ProtoCrewMember inputProtoCrewReference)
+        {
+            CrewNode existingCrewNode = _CrewList.FirstOrDefault(x => x.ProtoCrewReference == inputProtoCrewReference);
+
+            if (existingCrewNode != null)
+            {
+                _CrewList.Remove(existingCrewNode);
+            }
+        }
+
+        public double GetVacationTime(ProtoCrewMember protoCrewMember)
+        {
+            double value = 0;
+
+            if (_CrewList.Exists(x => x.ProtoCrewReference == protoCrewMember))
+            {
+                value =  _CrewList.FirstOrDefault(x => x.ProtoCrewReference == protoCrewMember).expiration;
+            }
+
+            return value;
+        }
     }
 
-    public class CrewNode
+
+    // The idea here is that we always want to be dealing with ProtoCrewMember outside of this file.
+    // By making our data available as extension methods, that sort of makes life easier.
+    public static class CrewQExtensions
+    {
+        public static double GetVacationTime(this ProtoCrewMember protoCrewMember)
+        {
+            double value = 0;
+
+            if (CrewQData.Instance != null)
+            {
+                 value = CrewQData.Instance.GetVacationTime(protoCrewMember);
+            }
+
+            return value;
+        }
+
+        public static bool IsOnVacation(this ProtoCrewMember protoCrewMember)
+        {
+            if (CrewQData.Instance != null && CrewQData.Instance.VacationingCrew.Contains(protoCrewMember))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+
+    // Our storage node type.
+    class CrewNode
     {
         public string name;
         public double expiration;
@@ -138,7 +276,7 @@ namespace CrewQ
         {
             get
             {
-                return HighLogic.CurrentGame.CrewRoster.Crew.First(x => x.name == name);
+                return HighLogic.CurrentGame.CrewRoster.Crew.FirstOrDefault(x => x.name == name);
             }
         }
 

@@ -37,14 +37,19 @@ namespace CrewQ.Interface
         private const string WINDOW_TITLE = "CrewQ(ueue) Settings";
         private const int BORDER_SIZE = 5;
 
-        private const int WINDOW_WIDTH = 330, WINDOW_HEIGHT = 265;
+        private const int WINDOW_WIDTH = 330, WINDOW_HEIGHT = 290;
         private const int COLUMN_A = BORDER_SIZE;
         private const int COLUMN_B = COLUMN_A + (WINDOW_WIDTH / 2);
+        private const int ROW_HEIGHT = 30;
 
-        private string[] toggleCaptions = { "Automatically select crew", "Crew on IsOnVacation are ineligible for missions", "Use module type crew compositions", "<color=orange>Permanently hide this menu</color>", "Remove default crews" };
+        private string[] toggleCaptions = { "Automatically select crew",
+                                            "Crew on vacation cannot go on missions", 
+                                            "Use module type crew compositions", 
+                                            "<color=orange>Permanently hide this menu</color>", 
+                                            "Remove default crews" };
         
         private bool toggleDoCustomAssignment, toggleVacationHardlock, toggleUseCrewCompositions, toggleHideSettingsIcon, toggleRemoveDefaultCrews;
-        private string localVacationScalar = "", localMinimumVacationDays = "";
+        private string localVacationScalar = string.Empty, localMinimumVacationDays = string.Empty, localMaximumVacationDays = string.Empty;
 
         private bool pauseSync = false, popupArmed = true;
 
@@ -66,19 +71,26 @@ namespace CrewQ.Interface
 
             GUI.Box(new Rect(BORDER_SIZE, 30, WindowRect.width - (BORDER_SIZE * 2), WindowRect.height - (BORDER_SIZE * 2) - 30), "");
 
-            toggleRemoveDefaultCrews = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 225, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleRemoveDefaultCrews, toggleCaptions[4]);
-            toggleDoCustomAssignment = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 195, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleDoCustomAssignment, toggleCaptions[0]);
+            float offsetValue = 0;
 
-            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT-160, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5), 30), "<color=white>Minimum Vacation Days:</color>");
-            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 130, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5), 30), "<color=white>Maximum Vacation Percentage:</color>");
-
-            localMinimumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 10, WINDOW_HEIGHT - 165, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5), 20), localMinimumVacationDays);
-            localVacationScalar = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 10, WINDOW_HEIGHT - 135, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5), 20), localVacationScalar);
-
-            toggleVacationHardlock = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 105, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleVacationHardlock, toggleCaptions[1]);
-            toggleUseCrewCompositions = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 75, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleUseCrewCompositions, toggleCaptions[2]);
             toggleHideSettingsIcon = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 45, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleHideSettingsIcon, toggleCaptions[3]);
+            toggleUseCrewCompositions = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 75, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleUseCrewCompositions, toggleCaptions[2]);
+            toggleVacationHardlock = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 105, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleVacationHardlock, toggleCaptions[1]);
 
+            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 130, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5), 30), "<color=white>Minimum Vacation Days:</color>");
+            localMinimumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 10, WINDOW_HEIGHT - 130, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localMinimumVacationDays);
+
+            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 160, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5), 30), "<color=white>Maximum Vacation Days:</color>");
+            localMaximumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 10, WINDOW_HEIGHT - 160, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localMaximumVacationDays);
+
+            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 190, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5), 30), "<color=white>Mission Length -> Vacation Percentage:</color>");
+            localVacationScalar = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 10, WINDOW_HEIGHT - 190, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localVacationScalar);
+                        
+            toggleDoCustomAssignment = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 220, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleDoCustomAssignment, toggleCaptions[0]);
+            toggleRemoveDefaultCrews = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 250, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleRemoveDefaultCrews, toggleCaptions[4]);
+
+            toggleRemoveDefaultCrews = toggleRemoveDefaultCrews | toggleDoCustomAssignment;
+            
             if (toggleHideSettingsIcon && popupArmed)
             {
                 ConfirmHide();
@@ -116,9 +128,8 @@ namespace CrewQ.Interface
                 toggleDoCustomAssignment = settings.settingDoCustomAssignment;
                 toggleUseCrewCompositions = settings.settingUseCrewCompositions;
                 toggleVacationHardlock = settings.settingVacationHardlock;
-                toggleRemoveDefaultCrews = settings.settingRemoveDefaultCrews;
-
                 localMinimumVacationDays = settings.settingMinimumVacationDays.ToString();
+                localMaximumVacationDays = settings.settingMaximumVacationDays.ToString();
                 localVacationScalar = (settings.settingVacationScalar * 100).ToString();
             }
         }
@@ -142,6 +153,15 @@ namespace CrewQ.Interface
                 catch (Exception e)
                 {
                     Logging.Error("INVALID MINIMUM VACATION DAYS");
+                }
+
+                try
+                {
+                    settings.settingMaximumVacationDays = Int32.Parse(localMaximumVacationDays);
+                }
+                catch (Exception e)
+                {
+                    Logging.Error("INVALID MAXIMUM VACATION DAYS");
                 }
 
                 try
@@ -190,6 +210,12 @@ namespace CrewQ.Interface
         private void Unlock()
         {
             InputLockManager.RemoveControlLock("CrewQSettingsWindow");
+        }
+
+        private object AddGUI(object GUI, ref double offset)
+        {
+            offset += ROW_HEIGHT;
+            return GUI;
         }
     }
 }

@@ -81,23 +81,24 @@ namespace CrewQ.Interface
             if (partCrewManifests != null && partCrewManifests.Count > 0)
             {
                 PartCrewManifest partManifest = partCrewManifests[0];
-                foreach (ProtoCrewMember crewMember in partManifest.GetPartCrew())
+
+                if (CrewQData.Instance.settingRemoveDefaultCrews || CrewQData.Instance.settingDoCustomAssignment)
                 {
-                    if (crewMember != null)
+                    foreach (ProtoCrewMember crewMember in partManifest.GetPartCrew())
                     {
-                        if (CrewQData.Instance.settingRemoveDefaultCrews || CrewQData.Instance.settingDoCustomAssignment)
+                        if (crewMember != null)
                         {
                             // Clean the root part
                             partManifest.RemoveCrewFromSeat(partManifest.GetCrewSeat(crewMember));
-
-                            // TODO - replace the crew with our selections
-                            if (CrewQData.Instance.settingDoCustomAssignment)
-                            {
-
-                            }
                         }
                     }
-                }
+                    if (CrewQData.Instance.settingDoCustomAssignment)
+                    {
+                        IEnumerable<ProtoCrewMember> newCrew = CrewQ.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true);
+
+                        partManifest.AddCrewToOpenSeats(newCrew);
+                    }
+                }            
             }
 
             CMAssignmentDialog.Instance.RefreshCrewLists(originalVesselManifest, true, true);

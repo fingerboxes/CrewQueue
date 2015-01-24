@@ -53,14 +53,13 @@ namespace CrewQ.Interface
             {
                 Logging.Debug("AC is spawned...");
                 IEnumerable<CrewItemContainer> crewItemContainers = GameObject.FindObjectsOfType<CrewItemContainer>().Where(x => x.GetCrewRef().rosterStatus == ProtoCrewMember.RosterStatus.Available);
-                IEnumerable<CrewNode> crewNodes = CrewQData.Instance.CrewList.Where(x => x.IsOnVacation);
 
                 foreach (CrewItemContainer crewContainer in crewItemContainers)
                 {
-                    if (crewNodes.Select(x => x.ProtoCrewReference).Contains(crewContainer.GetCrewRef()))
+                    if (crewContainer.GetCrewRef().IsOnVacation())
                     {
                         Logging.Debug("relabeling: " + crewContainer.GetName());
-                        string label ="Ready In: " + Utilities.GetFormattedTime(crewNodes.First(x => x.ProtoCrewReference == crewContainer.GetCrewRef()).RemainingTime);
+                        string label = "Ready In: " + Utilities.GetFormattedTime(crewContainer.GetCrewRef().GetVacationTime());
                         crewContainer.SetLabel(label);
                     }
                 }

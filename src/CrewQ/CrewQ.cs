@@ -52,9 +52,9 @@ namespace CrewQ
                 }
                 return _Instance;
             }
-        }
+        }        
 
-        private bool releaseOnce;
+        private bool _releaseOnce;
 
         protected override void Awake()
         {
@@ -71,14 +71,14 @@ namespace CrewQ
 
         protected override void Update()
         {
-            if (releaseOnce)
+            if (_releaseOnce)
             {
                 Logging.Debug("Releasing crew once, just in case.");
                 ReleaseCrew();
                 if (CrewQData.Instance != null)
                 {
-                    releaseOnce = false;
-                }                
+                    _releaseOnce = false;
+                }              
             }
         }
 
@@ -92,7 +92,7 @@ namespace CrewQ
             Logging.Debug("Crew removed from Roster: " + crewMember.name);
             if (CrewQData.Instance != null)
             {
-                CrewQData.Instance.CrewList.RemoveAll(x => x.ProtoCrewReference == crewMember);
+                CrewQData.Instance.RemoveCrew(crewMember);
             }
         }
 
@@ -101,7 +101,7 @@ namespace CrewQ
             if (scene != GameScenes.EDITOR)
             {
                 // Just in case!
-                releaseOnce = true;
+                _releaseOnce = true;
             }
         }
 
@@ -113,30 +113,19 @@ namespace CrewQ
             double scaledVacationTime = missionTime * settings.settingVacationScalar,
                    minimumVacationTime = Utilities.GetDayLength * settings.settingMinimumVacationDays;
 
-            double vacationTime = scaledVacationTime > minimumVacationTime ? scaledVacationTime : minimumVacationTime;
+            double vacationTime = (scaledVacationTime > minimumVacationTime) ? scaledVacationTime : minimumVacationTime;
 
             foreach (ProtoCrewMember crewMember in crewMembers)
             {
-                CrewNode existingCrewNode = settings.CrewList.First(x => x.ProtoCrewReference == crewMember);
-
-                if (existingCrewNode != null)
-                {
-                    existingCrewNode.expiration = vacationTime;
-                }
-                else
-                {
-                    CrewQData.Instance.CrewList.Add(new CrewNode(crewMember.name, (Planetarium.GetUniversalTime() + vacationTime)));
-                }
+                CrewQData.Instance.AddOrUpdateCrew(crewMember, vacationTime);
             }            
         }
 
         public void SuppressCrew()
         {
             if (CrewQData.Instance != null && CrewQData.Instance.settingVacationHardlock)
-            {
-                IEnumerable<ProtoCrewMember> vacationList = CrewQData.Instance.CrewList.Where(x => x.IsOnVacation == true).Select(x => x.ProtoCrewReference);
-
-                foreach (ProtoCrewMember crewMember in vacationList)
+            {              
+                foreach (ProtoCrewMember crewMember in CrewQData.Instance.VacationingCrew)
                 {
                     Logging.Debug("Hiding crew member: " + crewMember.name);
                     crewMember.rosterStatus = VACATION;
@@ -147,15 +136,18 @@ namespace CrewQ
         public void ReleaseCrew()
         {
             if (CrewQData.Instance != null)
-            {
-                IEnumerable<ProtoCrewMember> vacationList = CrewQData.Instance.CrewList.Where(x => x.ProtoCrewReference.rosterStatus == VACATION).Select(x => x.ProtoCrewReference);
-
-                foreach (ProtoCrewMember crewMember in vacationList)
+            {              
+                foreach (ProtoCrewMember crewMember in CrewQData.Instance.VacationingCrew)
                 {
                     Logging.Debug("Unhiding: " + crewMember.name);
                     crewMember.rosterStatus = ProtoCrewMember.RosterStatus.Available;
                 }
             }
+        }
+
+        public IEnumerable<ProtoCrewMember> GetCrewForPart(Part part, bool Veteran = false)
+        {
+            return null;
         }
     }
 }
