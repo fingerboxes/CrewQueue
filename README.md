@@ -13,7 +13,7 @@ Features
   * 'Science Labs', such as the Mobile Processing Lab will request: Scientist
   * 'Orbital Habitats', such as the Hitchhiker Storage Container will request: Engineer, Scientist
   * Mod-added parts will be treated as 'Mission command' parts, unless otherwise configured.
- * More to come!
+* More to come!
  
 Installation
 ------------
