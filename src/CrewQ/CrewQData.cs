@@ -85,24 +85,16 @@ namespace CrewQ
 
                 if (settingVacationHardlock)
                 {
-                    return crewRoster.Except(VacationingCrew);
+                    return crewRoster.Except(VacationingCrewRoster);
                 }
                 else
                 {
                     return crewRoster;
                 }
             }
-        } 
-
-        public IEnumerable<ProtoCrewMember> VacationingCrew
-        {
-            get
-            {
-                return _CrewList.Where(x => x.IsOnVacation).Select(x => x.ProtoCrewReference).ToArray();
-            }
         }
 
-        public IEnumerable<ProtoCrewMember> AvailableCrew
+        public IEnumerable<ProtoCrewMember> AvailableCrewRoster
         {
             get
             {
@@ -112,32 +104,40 @@ namespace CrewQ
                 }
                 else
                 {
-                    return CrewRoster.Except(VacationingCrew);
-                }                                
+                    return CrewRoster.Except(VacationingCrewRoster);
+                }
             }
         }
 
-        public IEnumerable<ProtoCrewMember> AvailableScientists
+        public IEnumerable<ProtoCrewMember> VacationingCrewRoster
         {
             get
             {
-                return AvailableCrew.Where(x => x.experienceTrait.Title == "Scientist");
+                return _CrewList.Where(x => x.IsOnVacation).Select(x => x.ProtoCrewReference).ToArray();
+            }
+        }        
+
+        public IEnumerable<ProtoCrewMember> AvailableScientistRoster
+        {
+            get
+            {
+                return AvailableCrewRoster.Where(x => x.experienceTrait.Title == "Scientist");
             }
         }
 
-        public IEnumerable<ProtoCrewMember> AvailableEngineers
+        public IEnumerable<ProtoCrewMember> AvailableEngineerRoster
         {
             get
             {
-                return AvailableCrew.Where(x => x.experienceTrait.Title == "Engineer");
+                return AvailableCrewRoster.Where(x => x.experienceTrait.Title == "Engineer");
             }
         }
 
-        public IEnumerable<ProtoCrewMember> AvailablePilots
+        public IEnumerable<ProtoCrewMember> AvailablePilotRoster
         {
             get
             {
-                return AvailableCrew.Where(x => x.experienceTrait.Title == "Pilot");
+                return AvailableCrewRoster.Where(x => x.experienceTrait.Title == "Pilot");
             }
         }
 
@@ -191,13 +191,20 @@ namespace CrewQ
             }
         }
 
-        public void RemoveCrew(ProtoCrewMember inputProtoCrewReference)
+
+        // We don't actually ever want remove crew who DO stuff. It isn't as if this list will ever get super-huge.
+        public bool RemoveCrewIfDeadOrFired(ProtoCrewMember inputProtoCrewReference)
         {
             CrewNode existingCrewNode = _CrewList.FirstOrDefault(x => x.ProtoCrewReference == inputProtoCrewReference);
 
-            if (existingCrewNode != null)
+            if (existingCrewNode != null && HighLogic.CurrentGame.CrewRoster.Crew.Contains(inputProtoCrewReference))
             {
                 _CrewList.Remove(existingCrewNode);
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -213,7 +220,6 @@ namespace CrewQ
             return value;
         }
     }
-
 
     // The idea here is that we always want to be dealing with ProtoCrewMember outside of this file.
     // By making our data available as extension methods, that sort of makes life easier.
@@ -233,7 +239,7 @@ namespace CrewQ
 
         public static bool IsOnVacation(this ProtoCrewMember protoCrewMember)
         {
-            if (CrewQData.Instance != null && CrewQData.Instance.VacationingCrew.Contains(protoCrewMember))
+            if (CrewQData.Instance != null && CrewQData.Instance.VacationingCrewRoster.Contains(protoCrewMember))
             {
                 return true;
             }
@@ -243,7 +249,6 @@ namespace CrewQ
             }
         }
     }
-
 
     // Our storage node type.
     class CrewNode

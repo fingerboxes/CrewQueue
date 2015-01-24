@@ -74,34 +74,39 @@ namespace CrewQ.Interface
         virtual protected void OnUpdate() { }
 
         public void CleanManifest()
-        {          
-            VesselCrewManifest originalVesselManifest = CMAssignmentDialog.Instance.GetManifest();
-            IList<PartCrewManifest> partCrewManifests = originalVesselManifest.GetCrewableParts();
-
-            if (partCrewManifests != null && partCrewManifests.Count > 0)
+        {
+            if (CMAssignmentDialog.Instance != null && CrewQData.Instance != null)
             {
-                PartCrewManifest partManifest = partCrewManifests[0];
+                VesselCrewManifest originalVesselManifest = CMAssignmentDialog.Instance.GetManifest();
+                IList<PartCrewManifest> partCrewManifests = originalVesselManifest.GetCrewableParts();
 
-                if (CrewQData.Instance.settingRemoveDefaultCrews || CrewQData.Instance.settingDoCustomAssignment)
+                CrewQ.Instance.ClearAssignedBuffer();
+
+                if (partCrewManifests != null && partCrewManifests.Count > 0)
                 {
-                    foreach (ProtoCrewMember crewMember in partManifest.GetPartCrew())
+                    PartCrewManifest partManifest = partCrewManifests[0];
+
+                    if (CrewQData.Instance.settingRemoveDefaultCrews || CrewQData.Instance.settingDoCustomAssignment)
                     {
-                        if (crewMember != null)
+                        foreach (ProtoCrewMember crewMember in partManifest.GetPartCrew())
                         {
-                            // Clean the root part
-                            partManifest.RemoveCrewFromSeat(partManifest.GetCrewSeat(crewMember));
+                            if (crewMember != null)
+                            {
+                                // Clean the root part
+                                partManifest.RemoveCrewFromSeat(partManifest.GetCrewSeat(crewMember));
+                            }
+                        }
+                        if (CrewQData.Instance.settingDoCustomAssignment)
+                        {
+                            IEnumerable<ProtoCrewMember> newCrew = CrewQ.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true);
+
+                            partManifest.AddCrewToOpenSeats(newCrew);
                         }
                     }
-                    if (CrewQData.Instance.settingDoCustomAssignment)
-                    {
-                        IEnumerable<ProtoCrewMember> newCrew = CrewQ.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true);
+                }
 
-                        partManifest.AddCrewToOpenSeats(newCrew);
-                    }
-                }            
+                CMAssignmentDialog.Instance.RefreshCrewLists(originalVesselManifest, true, true);
             }
-
-            CMAssignmentDialog.Instance.RefreshCrewLists(originalVesselManifest, true, true);
         }
 
         public void RemapFillButton()
@@ -114,9 +119,17 @@ namespace CrewQ.Interface
         {
             if (eventPointer.evt == POINTER_INFO.INPUT_EVENT.TAP)
             {
+                Logging.Debug("Fill Button Pressed");
                 if (CrewQData.Instance.settingDoCustomAssignment)
                 {
-                    // TODO - replace the crew with our selections
+                    VesselCrewManifest vesselManifest = CMAssignmentDialog.Instance.GetManifest();
+
+                    foreach (PartCrewManifest partManifest in vesselManifest)
+                    {
+                        bool firstPart = (partManifest == vesselManifest.GetCrewableParts()[0]);
+
+                        partManifest.AddCrewToOpenSeats(CrewQ.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, firstPart));
+                    }
                 }
                 else
                 {

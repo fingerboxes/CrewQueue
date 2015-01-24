@@ -52,7 +52,9 @@ namespace CrewQ
                 }
                 return _Instance;
             }
-        }        
+        }
+
+        private IList<ProtoCrewMember> _assignedCrewBuffer;
 
         private bool _releaseOnce;
 
@@ -61,6 +63,8 @@ namespace CrewQ
             Logging.Debug("Loading...");
             DontDestroyOnLoad(this);
             _Instance = this;
+
+            _assignedCrewBuffer = new List<ProtoCrewMember>();
 
             GameEvents.onKerbalRemoved.Add(OnKerbalRemoved);
             GameEvents.onLevelWasLoaded.Add(OnLevelWasLoaded);
@@ -71,38 +75,42 @@ namespace CrewQ
 
         protected override void Update()
         {
-            if (_releaseOnce)
+            if (_releaseOnce && CrewQData.Instance != null)
             {
                 Logging.Debug("Releasing crew once, just in case.");
                 ReleaseCrew();
-                if (CrewQData.Instance != null)
-                {
-                    _releaseOnce = false;
-                }              
+
+                _releaseOnce = false;
             }
         }
 
         void OnVesselRecoveryRequested(Vessel vessel)
         {
+            Logging.Debug("Vessel Recovery Event Recieved");
             OnCrewRecovery(vessel.GetVesselCrew(), vessel.missionTime);
         }
 
         void OnKerbalRemoved(ProtoCrewMember crewMember)
         {
-            Logging.Debug("Crew removed from Roster: " + crewMember.name);
+            Logging.Debug("Kerbal Remove Event");
             if (CrewQData.Instance != null)
             {
-                CrewQData.Instance.RemoveCrew(crewMember);
+                Logging.Info("Attempting to remove crew from roster... " + ((CrewQData.Instance.RemoveCrewIfDeadOrFired(crewMember)) ? "Success" : "Failure"));
             }
         }
 
         void OnLevelWasLoaded(GameScenes scene)
         {
+            Logging.Debug("Scene Loaded Event");
             if (scene != GameScenes.EDITOR)
             {
                 // Just in case!
+                Logging.Debug("Queueing release event");
                 _releaseOnce = true;
             }
+
+            Logging.Debug("Clearing _assignedCrewBuffer");
+            _assignedCrewBuffer.Clear();
         }
 
         // Our methods
@@ -110,22 +118,52 @@ namespace CrewQ
         {
             CrewQData settings = CrewQData.Instance;
 
-            double scaledVacationTime = missionTime * settings.settingVacationScalar,
-                   minimumVacationTime = Utilities.GetDayLength * settings.settingMinimumVacationDays;
+            double scaledVacationTime =  Planetarium.GetUniversalTime() + missionTime * settings.settingVacationScalar,
+                   minimumVacationTime = Utilities.GetDayLength * settings.settingMinimumVacationDays,
+                   maximumVacationTime = Utilities.GetDayLength * settings.settingMaximumVacationDays;
 
-            double vacationTime = (scaledVacationTime > minimumVacationTime) ? scaledVacationTime : minimumVacationTime;
+            scaledVacationTime.Clamp(minimumVacationTime, maximumVacationTime);
 
             foreach (ProtoCrewMember crewMember in crewMembers)
             {
-                CrewQData.Instance.AddOrUpdateCrew(crewMember, vacationTime);
+                CrewQData.Instance.AddOrUpdateCrew(crewMember, scaledVacationTime);
             }            
+        }
+
+        public void ClearAssignedBuffer()
+        {
+            _assignedCrewBuffer.Clear();
+        }
+
+        public void RemoveFromBuffer(IEnumerable<ProtoCrewMember> excessCrew)
+        {
+            Logging.Debug("Removing from assigned crew buffer");
+            _assignedCrewBuffer = _assignedCrewBuffer.Except(excessCrew).ToList();
+
+            Logging.Debug("Buffer now contains:");
+            foreach (ProtoCrewMember crewMember in _assignedCrewBuffer)
+            {
+                Logging.Debug(crewMember.name);
+            }
+        }
+
+        public void AddToBuffer(IEnumerable<ProtoCrewMember> assignedCrew)
+        {
+            Logging.Debug("Adding to assigned crew buffer");
+            _assignedCrewBuffer = _assignedCrewBuffer.Union(assignedCrew).ToList();
+
+            Logging.Debug("Buffer now contains:");
+            foreach (ProtoCrewMember crewMember in _assignedCrewBuffer)
+            {
+                Logging.Debug(crewMember.name);
+            }
         }
 
         public void SuppressCrew()
         {
             if (CrewQData.Instance != null && CrewQData.Instance.settingVacationHardlock)
             {              
-                foreach (ProtoCrewMember crewMember in CrewQData.Instance.VacationingCrew)
+                foreach (ProtoCrewMember crewMember in CrewQData.Instance.VacationingCrewRoster)
                 {
                     Logging.Debug("Hiding crew member: " + crewMember.name);
                     crewMember.rosterStatus = VACATION;
@@ -137,7 +175,7 @@ namespace CrewQ
         {
             if (CrewQData.Instance != null)
             {              
-                foreach (ProtoCrewMember crewMember in CrewQData.Instance.VacationingCrew)
+                foreach (ProtoCrewMember crewMember in CrewQData.Instance.VacationingCrewRoster)
                 {
                     Logging.Debug("Unhiding: " + crewMember.name);
                     crewMember.rosterStatus = ProtoCrewMember.RosterStatus.Available;
@@ -145,9 +183,87 @@ namespace CrewQ
             }
         }
 
-        public IEnumerable<ProtoCrewMember> GetCrewForPart(Part part, bool Veteran = false)
+        public IEnumerable<ProtoCrewMember> GetCrewForPart(Part part, bool veteran = false)
         {
-            return null;
+            ProtoCrewMember[] crewBuffer = new ProtoCrewMember[part.CrewCapacity];
+
+            string[] crewSequence = new string[] { "Pilot", "Engineer", "Scientist" };
+
+            for (int i = 0; i < part.CrewCapacity; i++)
+            {
+                int selector;
+                if (i < crewSequence.Length)
+                {
+                    selector = i;
+                }
+                else
+                {
+                    selector = new System.Random().Next(0, crewSequence.Length);
+                }
+                if (veteran)
+                {
+                    crewBuffer[i] = GetExperiencedCrewMember(crewSequence[selector]);
+                }
+                else
+                {
+                    crewBuffer[i] = GetCrewMember(crewSequence[selector]);
+                } 
+            }
+
+            return crewBuffer;
+        }
+
+        private IEnumerable<ProtoCrewMember> GetRosterByJobTitle(string jobTitle)
+        {
+            IEnumerable<ProtoCrewMember> crewRoster = null;
+
+            if (CrewQData.Instance != null)
+            {
+                CrewQData data = CrewQData.Instance;
+
+                switch (jobTitle)
+                {
+                    case "Pilot":
+                        crewRoster = data.AvailablePilotRoster.Except(_assignedCrewBuffer);
+                        break;
+                    case "Engineer":
+                        crewRoster = data.AvailableEngineerRoster.Except(_assignedCrewBuffer);
+                        break;
+                    case "Scientist":
+                        crewRoster = data.AvailableScientistRoster.Except(_assignedCrewBuffer);
+                        break;
+                    default:
+                        crewRoster = data.AvailableCrewRoster.Except(_assignedCrewBuffer);
+                        break;
+                }
+            }
+
+            return crewRoster;
+        }
+
+        private ProtoCrewMember GetCrewMember(string jobTitle)
+        {
+            Logging.Debug("Getting a crew member...");
+            ProtoCrewMember selectedCrew = null;
+            if (CrewQData.Instance != null)
+            {
+                IEnumerable<ProtoCrewMember> crewRoster = GetRosterByJobTitle(jobTitle).OrderBy(x => x.experienceLevel).ToList().TakePercent(25);
+                selectedCrew = crewRoster.RandomElement(new System.Random());
+            }
+            return selectedCrew;
+        }
+
+        private ProtoCrewMember GetExperiencedCrewMember(string jobTitle)
+        {
+            Logging.Debug("Getting an experienced crew member...");
+            ProtoCrewMember selectedCrew = null;
+            if (CrewQData.Instance != null)
+            {
+                IEnumerable<ProtoCrewMember> crewRoster = GetRosterByJobTitle(jobTitle);
+                crewRoster = crewRoster.GroupBy(x => x.experienceLevel).OrderByDescending(x => x.Key).FirstOrDefault();
+                selectedCrew = crewRoster.RandomElement(new System.Random());                
+            }
+            return selectedCrew;
         }
     }
 }
