@@ -33,7 +33,7 @@ If you would like to build this mod from source, for whatever reason, it has the
 * Assembly-CSharp-firstpass.dll
 * UnityEngine.dll
 
-##### From other sources:
+###### From other sources:
 * FingerboxLib.dll (At this moment, also built from this project)
 
 Future Plans
@@ -46,7 +46,7 @@ License
 -------
 I am fully committed to free software, and I feel that the concept of imposing licensing requirements on software in general, and mods in particular, beyond simple attribution is absurd. As such, this mod is released under the terms of the MIT License.
 
-##### TL;DR
+###### TL;DR
 * You may not hold me liable for any defects in the software or damage caused by the software.
 * If you _reuse_ or _modify_ my code, you must include the copyright and license with that code, but it does not need to apply to your entire work - just the components which are based on my work.
 * You may _reuse_ or _modify_ my code.
