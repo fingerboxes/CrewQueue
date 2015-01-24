@@ -69,10 +69,10 @@ namespace CrewQ
         public double settingVacationScalar = 0.1;
 
         [KSPField(isPersistant = true)]
-        public int settingMinimumVacationDays = 15;
+        public int settingMinimumVacationDays = 7;
 
         [KSPField(isPersistant = true)]
-        public int settingMaximumVacationDays = 30;
+        public int settingMaximumVacationDays = 28;
 
         private List<CrewNode> _CrewList;
        

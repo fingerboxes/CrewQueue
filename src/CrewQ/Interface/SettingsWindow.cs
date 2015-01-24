@@ -77,14 +77,14 @@ namespace CrewQ.Interface
             toggleUseCrewCompositions = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 75, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleUseCrewCompositions, toggleCaptions[2]);
             toggleVacationHardlock = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 105, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleVacationHardlock, toggleCaptions[1]);
 
-            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 130, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5), 30), "<color=white>Minimum Vacation Days:</color>");
-            localMinimumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 10, WINDOW_HEIGHT - 130, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localMinimumVacationDays);
+            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 130, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.7), 30), "<color=white>Minimum vacation Days:</color>");
+            localMinimumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 40, WINDOW_HEIGHT - 130, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localMinimumVacationDays);
 
-            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 160, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5), 30), "<color=white>Maximum Vacation Days:</color>");
-            localMaximumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 10, WINDOW_HEIGHT - 160, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localMaximumVacationDays);
+            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 160, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.7), 30), "<color=white>Maximum vacation Days:</color>");
+            localMaximumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 40, WINDOW_HEIGHT - 160, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localMaximumVacationDays);
 
-            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 190, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5), 30), "<color=white>Mission Length -> Vacation Percentage:</color>");
-            localVacationScalar = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 10, WINDOW_HEIGHT - 190, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localVacationScalar);
+            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 190, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.7), 30), "<color=white>Base vacation rate:</color>");
+            localVacationScalar = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 40, WINDOW_HEIGHT - 190, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localVacationScalar);
                         
             toggleDoCustomAssignment = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 220, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleDoCustomAssignment, toggleCaptions[0]);
             toggleRemoveDefaultCrews = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 250, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleRemoveDefaultCrews, toggleCaptions[4]);
