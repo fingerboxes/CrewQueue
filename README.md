@@ -19,7 +19,7 @@ Installation
 ------------
 [Download](https://github.com/fingerboxes/CrewQ/releases) the latest Relase or Pre-release. Pre-releases should be used knowing that they contain bugs, and the newest Release will generally be identical to the newest Pre-release.
 
-Once you've downloaded this file, simply unzip it and merge the GameData directory with the one located in your Kerbal Space Program installation directory.
+Once you've downloaded this file, simply unzip it and merge the GameData directory with the one located in your Kerbal Space Program installation directory, overwriting any files if prompted.
 
 Uninstallation
 --------------
