@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrewQ", "CrewQ.csproj", "{E
 		{6AE0BA91-9473-43E6-980D-C7B04CCAEB45} = {6AE0BA91-9473-43E6-980D-C7B04CCAEB45}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FingerboxLib", "..\FingerboxLib\FingerboxLib.csproj", "{6AE0BA91-9473-43E6-980D-C7B04CCAEB45}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FingerboxLib", "..\..\FingerboxLib\Source\FingerboxLib.csproj", "{6AE0BA91-9473-43E6-980D-C7B04CCAEB45}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

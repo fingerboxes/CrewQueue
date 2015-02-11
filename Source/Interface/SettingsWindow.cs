@@ -71,8 +71,6 @@ namespace CrewQ.Interface
 
             GUI.Box(new Rect(BORDER_SIZE, 30, WindowRect.width - (BORDER_SIZE * 2), WindowRect.height - (BORDER_SIZE * 2) - 30), "");
 
-            float offsetValue = 0;
-
             toggleHideSettingsIcon = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 45, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleHideSettingsIcon, toggleCaptions[3]);
             toggleUseCrewCompositions = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 75, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleUseCrewCompositions, toggleCaptions[2]);
             toggleVacationHardlock = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 105, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleVacationHardlock, toggleCaptions[1]);
@@ -150,7 +148,7 @@ namespace CrewQ.Interface
                 {
                     settings.settingMinimumVacationDays = Int32.Parse(localMinimumVacationDays);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Logging.Error("INVALID MINIMUM VACATION DAYS");
                 }
@@ -159,7 +157,7 @@ namespace CrewQ.Interface
                 {
                     settings.settingMaximumVacationDays = Int32.Parse(localMaximumVacationDays);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Logging.Error("INVALID MAXIMUM VACATION DAYS");
                 }
@@ -168,7 +166,7 @@ namespace CrewQ.Interface
                 {
                     settings.settingVacationScalar = (Double.Parse(localVacationScalar) / 100);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Logging.Error("INVALID VACATION SCALAR");
                 }

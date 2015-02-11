@@ -33,8 +33,7 @@ If you would like to build this mod from source, for whatever reason, it has the
 * Assembly-CSharp-firstpass.dll
 * UnityEngine.dll
 
-###### From other sources:
-* FingerboxLib.dll (At this moment, also built from this project)
+You will need to clone both this repository, and [FingerboxLib](https://github.com/fingerboxes/FingerboxLib). If both are cloned into adjacent directories (../SomeDirectory/CrewQ, ../SomeDirectory/FingerboxLib) and the required dlls from KSP are copied or linked into the common root (../Somedirectory/), you should be able to build this project with no further configuration. The required output is the *combined* contents of both projects 'GameData' directories.
 
 Future Plans
 ------------

@@ -31,16 +31,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
+    <Reference Include="Assembly-CSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
+    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine">
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -55,14 +58,14 @@
     <Compile Include="Interface\SpaceCenterModule.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FingerboxLib\FingerboxLib.csproj">
+    <ProjectReference Include="..\..\FingerboxLib\Source\FingerboxLib.csproj">
       <Project>{6ae0ba91-9473-43e6-980d-c7b04ccaeb45}</Project>
       <Name>FingerboxLib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y $(TargetPath) $(TargetDir)..\..\..\..\GameData\Fingerboxes\CrewQ\Plugins\</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y $(TargetPath) $(TargetDir)..\..\..\GameData\Fingerboxes\CrewQ\Plugins\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
