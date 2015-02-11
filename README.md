@@ -41,6 +41,12 @@ This mod is only the first in a planned series with the goal of making _time_ a 
 
 The only currently-unimplemented goals for this mod are an API, so that other mods may interact with it, a penalty for ending a crew's vacation early (likely a longer vacation next time), and a 'lite' version that does not contain crew reassignment or vacations, simply removes crew from the VAB and Launch dialogs.
 
+Special Thanks To
+-----------------
+TriggerAu - Lots of the GUI code was built using his KSPPluginFramework, an altered version of which is included in FingerboxLib
+nebuchadnezzar - made the applauncher icon
+Darren Thomas - AVC file
+
 License
 -------
 I am fully committed to free software, and I feel that the concept of imposing licensing requirements on software in general, and mods in particular, beyond simple attribution is absurd. As such, this mod is released under the terms of the MIT License.
