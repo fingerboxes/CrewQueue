@@ -43,9 +43,9 @@ The only currently-unimplemented goals for this mod are an API, so that other mo
 
 Special Thanks To
 -----------------
-[*] TriggerAu - Lots of the GUI code was built using his KSPPluginFramework, an altered version of which is included in FingerboxLib
-[*] nebuchadnezzar - made the applauncher icon
-[*] Darren Thomas - AVC file
+* TriggerAu - Lots of the GUI code was built using his KSPPluginFramework, an altered version of which is included in FingerboxLib
+* nebuchadnezzar - made the applauncher icon
+* Darren Thomas - AVC file
 
 License
 -------
