@@ -46,10 +46,17 @@ namespace CrewQ.Interface
         {
             get
             {
-                bool coalescedCondition = (CrewQData.Instance != null && settingsWindow != null) &&
-                                          (CrewQData.Instance.settingHideSettingsIcon == false || settingsWindow.Visible == true);
+                try
+                {
+                    bool coalescedCondition = (settingsWindow != null) &&
+                                              (CrewQData.Instance.settingHideSettingsIcon == false || settingsWindow.Visible == true);
 
-                return coalescedCondition ? ApplicationLauncher.AppScenes.SPACECENTER : ApplicationLauncher.AppScenes.NEVER;
+                    return coalescedCondition ? ApplicationLauncher.AppScenes.SPACECENTER : ApplicationLauncher.AppScenes.NEVER;
+                }
+                catch (Exception)
+                {
+                    return ApplicationLauncher.AppScenes.NEVER;
+                }
             }
             set
             {

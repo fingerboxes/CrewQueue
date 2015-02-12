@@ -38,14 +38,15 @@ namespace CrewQ
     {
         // Singleton boilerplate
         private static CrewQData _Instance;
-        public static CrewQData Instance
+        internal static CrewQData Instance
         {
             get
             {
                 if (_Instance == null)
                 {
-                    _Instance = CrewQData.FindObjectOfType<CrewQData>();
+                    throw new Exception("ERROR: Attempted to query CrewQData before it was loaded.");
                 }
+
                 return _Instance;
             }
         }
@@ -75,86 +76,68 @@ namespace CrewQ
         public int settingMaximumVacationDays = 28;
 
         private List<CrewNode> _CrewList;
-       
-        // Various derived rosters
-        public IEnumerable<ProtoCrewMember> CrewRoster
-        {
-            get
-            {
-                IEnumerable<ProtoCrewMember> crewRoster = HighLogic.CurrentGame.CrewRoster.Crew.Where(x => x.rosterStatus == ProtoCrewMember.RosterStatus.Available);
-
-                if (settingVacationHardlock)
-                {
-                    return crewRoster.Except(VacationingCrewRoster);
-                }
-                else
-                {
-                    return crewRoster;
-                }
-            }
-        }
-
-        public IEnumerable<ProtoCrewMember> AvailableCrewRoster
-        {
-            get
-            {
-                if (settingVacationHardlock)
-                {
-                    return CrewRoster;
-                }
-                else
-                {
-                    return CrewRoster.Except(VacationingCrewRoster);
-                }
-            }
-        }
-
-        public IEnumerable<ProtoCrewMember> VacationingCrewRoster
-        {
-            get
-            {
-                return _CrewList.Where(x => x.IsOnVacation).Select(x => x.ProtoCrewReference).ToArray();
-            }
-        }        
-
-        public IEnumerable<ProtoCrewMember> AvailableScientistRoster
-        {
-            get
-            {
-                return AvailableCrewRoster.Where(x => x.experienceTrait.Title == "Scientist");
-            }
-        }
-
-        public IEnumerable<ProtoCrewMember> AvailableEngineerRoster
-        {
-            get
-            {
-                return AvailableCrewRoster.Where(x => x.experienceTrait.Title == "Engineer");
-            }
-        }
-
-        public IEnumerable<ProtoCrewMember> AvailablePilotRoster
-        {
-            get
-            {
-                return AvailableCrewRoster.Where(x => x.experienceTrait.Title == "Pilot");
-            }
-        }
 
         public override void OnAwake()
         {
             _Instance = this;
             _CrewList = new List<CrewNode>();
+
+            GameEvents.onKerbalAdded.Add(onKerbalAdded);
+            GameEvents.onKerbalRemoved.Add(onKerbalRemoved);
+        }
+
+        void Start()
+        {
+            // This should only ever run once, when the game is first created or the mod is installed.
+            if (_CrewList.Count < HighLogic.CurrentGame.CrewRoster.Count)
+            {
+                foreach (ProtoCrewMember kerbal in HighLogic.CurrentGame.CrewRoster.Crew)
+                {
+                    if (!_CrewList.Select(x => x.ProtoCrewReference).Contains(kerbal))
+                    {
+                        _CrewList.Add(new CrewNode(kerbal.name));
+                    }
+                }
+            }
+
+            CrewQ.Instance.ShowVacationingCrew();
+        }
+
+        void Destroy()
+        {
+            _Instance = null;
+
+            GameEvents.onKerbalAdded.Remove(onKerbalAdded);
+            GameEvents.onKerbalRemoved.Remove(onKerbalRemoved);
+        }
+
+        // KSP Events
+
+        // If a Kerbal gets added to the roster, add it to ours
+        private void onKerbalAdded(ProtoCrewMember kerbal)
+        {
+            if (!_CrewList.Select(x => x.ProtoCrewReference).Contains(kerbal))
+            {
+                _CrewList.Add(new CrewNode(kerbal.name));
+            }
+        }
+
+        // Likewise, if a Kerbal is removed from the roster, remove it from ours
+        private void onKerbalRemoved(ProtoCrewMember kerbal)
+        {
+            if (_CrewList.Select(x => x.ProtoCrewReference).Contains(kerbal))
+            {
+                _CrewList.Remove(_CrewList.FirstOrDefault(x => x.ProtoCrewReference == kerbal));
+            }
         }
 
         // ScenarioModule methods
         public override void OnLoad(ConfigNode rootNode)
         {
-            if (rootNode.HasNode("_CrewList"))
+            if (rootNode.HasNode("CrewList"))
             {
-                ConfigNode crewListNode = rootNode.GetNode("_CrewList");
-
-                IEnumerable<ConfigNode> crewNodes = crewListNode.GetNodes();
+                rootNode = rootNode.GetNode("CrewList");
+                IEnumerable<ConfigNode> crewNodes = rootNode.GetNodes();
 
                 foreach (ConfigNode crewNode in crewNodes)
                 {
@@ -165,117 +148,48 @@ namespace CrewQ
 
         public override void OnSave(ConfigNode rootNode)
         {
-            rootNode.RemoveNode("_CrewList");
-            ConfigNode crewListNode = new ConfigNode("_CrewList");
+            rootNode.RemoveNode("CrewList");
+            ConfigNode crewNodes = new ConfigNode("CrewList");
 
             foreach (CrewNode crewNode in _CrewList)
             {
-                crewListNode.AddNode(crewNode.GetConfigNode);
+                crewNodes.AddNode(crewNode.AsConfigNode());
             }
 
-            rootNode.AddNode(crewListNode);
+            rootNode.AddNode(crewNodes);
         }
-        
-        // Our methods
-        public void AddOrUpdateCrew(ProtoCrewMember inputProtoCrewReference, double inputVacationTime)
+    
+        // Accessor methods.
+        public double GetVacationTimer(ProtoCrewMember kerbal)
         {
-            CrewNode existingCrewNode = _CrewList.FirstOrDefault(x => x.ProtoCrewReference == inputProtoCrewReference);
-
-            if (existingCrewNode != null)
-            {
-                existingCrewNode.expiration = inputVacationTime;
-            }
-            else
-            {
-                _CrewList.Add(new CrewNode(inputProtoCrewReference.name, (Planetarium.GetUniversalTime() + inputVacationTime)));
-            }
+            return _CrewList.FirstOrDefault(x => x.ProtoCrewReference == kerbal).Expiration;
         }
 
-
-        // We don't actually ever want remove crew who DO stuff. It isn't as if this list will ever get super-huge.
-        public bool RemoveCrewIfDeadOrFired(ProtoCrewMember inputProtoCrewReference)
+        public bool OnVacation(ProtoCrewMember kerbal)
         {
-            CrewNode existingCrewNode = _CrewList.FirstOrDefault(x => x.ProtoCrewReference == inputProtoCrewReference);
+            double vacationTimer = kerbal.GetVacationTimerInternal();
 
-            if (existingCrewNode != null && HighLogic.CurrentGame.CrewRoster.Crew.Contains(inputProtoCrewReference))
-            {
-                _CrewList.Remove(existingCrewNode);
-                return true;
-            }
-            else
+            if (vacationTimer == -1)
             {
                 return false;
             }
-        }
-
-        public double GetVacationTime(ProtoCrewMember protoCrewMember)
-        {
-            double value = 0;
-
-            if (_CrewList.Exists(x => x.ProtoCrewReference == protoCrewMember))
-            {
-                value =  _CrewList.FirstOrDefault(x => x.ProtoCrewReference == protoCrewMember).expiration;
-            }
-
-            return value;
-        }
-    }
-
-    // The idea here is that we always want to be dealing with ProtoCrewMember outside of this file.
-    // By making our data available as extension methods, that sort of makes life easier.
-    public static class CrewQExtensions
-    {
-        public static double GetVacationTime(this ProtoCrewMember protoCrewMember)
-        {
-            double value = 0;
-
-            if (CrewQData.Instance != null)
-            {
-                 value = CrewQData.Instance.GetVacationTime(protoCrewMember);
-            }
-
-            return value;
-        }
-
-        public static bool IsOnVacation(this ProtoCrewMember protoCrewMember)
-        {
-            if (CrewQData.Instance != null && CrewQData.Instance.VacationingCrewRoster.Contains(protoCrewMember))
-            {
-                return true;
-            }
             else
             {
-                return false;
-            }
+                return (vacationTimer - Planetarium.GetUniversalTime() > 0);
+            }            
+        }
+
+        public void SetVacationTimer(ProtoCrewMember kerbal, double timeout)
+        {
+            _CrewList.FirstOrDefault(x => x.ProtoCrewReference == kerbal).Expiration = timeout;
         }
     }
 
     // Our storage node type.
     class CrewNode
     {
-        public string name;
-        public double expiration;
-
-        public ConfigNode GetConfigNode
-        {
-            get
-            {
-                ConfigNode node = new ConfigNode("KERBAL");
-
-                node.AddValue("crewName", name);
-                node.AddValue("targetExpiration", expiration);
-
-                return node;
-            }
-        }
-
-        public double RemainingTime
-        {
-            get
-            {
-                return expiration - Planetarium.GetUniversalTime();
-            }
-        }
+        private string name;
+        private double expiration;
 
         public ProtoCrewMember ProtoCrewReference
         {
@@ -285,26 +199,44 @@ namespace CrewQ
             }
         }
 
-        public bool IsOnVacation
+        public double Expiration
         {
             get
             {
-                return expiration > Planetarium.GetUniversalTime();
+                return expiration;
             }
-        }
 
-        public CrewNode(string crewName, double targetExpiration)
-        {
-            name = crewName;
-            expiration = targetExpiration;
+            set
+            {
+                expiration = value;
+
+                Logging.Debug("expiration is now: " + expiration);
+            }
         }
 
         public CrewNode(ConfigNode sourceNode)
         {
-            name = sourceNode.GetValue("crewName");
-            expiration = Double.Parse(sourceNode.GetValue("targetExpiration"));
+            name = sourceNode.GetValue("Name");
+            expiration = Convert.ToDouble(sourceNode.GetValue("Expiration"));
         }
-        
+
+        public CrewNode(string crewName)
+        {
+            name = crewName;
+        }
+
+        public ConfigNode AsConfigNode()
+        {
+            ConfigNode _thisNode = new ConfigNode("KERBAL");
+
+            _thisNode.AddValue("Name", name);
+            _thisNode.AddValue("Expiration", expiration);
+
+            Logging.Debug("Building ConfigNode: expiration: " + expiration);
+
+            return _thisNode;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null || obj.GetType() != typeof(CrewNode))

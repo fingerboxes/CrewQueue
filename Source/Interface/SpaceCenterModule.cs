@@ -56,10 +56,10 @@ namespace CrewQ.Interface
 
                 foreach (CrewItemContainer crewContainer in crewItemContainers)
                 {
-                    if (crewContainer.GetCrewRef().IsOnVacation())
+                    if (crewContainer.GetCrewRef().OnVacationInternal())
                     {
                         Logging.Debug("relabeling: " + crewContainer.GetName());
-                        string label = "Ready In: " + Utilities.GetFormattedTime(crewContainer.GetCrewRef().GetVacationTime());
+                        string label = "Ready In: " + Utilities.GetFormattedTime(crewContainer.GetCrewRef().GetVacationTimerInternal());
                         crewContainer.SetLabel(label);
                     }
                 }

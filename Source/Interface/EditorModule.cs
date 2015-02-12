@@ -70,7 +70,7 @@ namespace CrewQ.Interface
         {
             if (rootExists && !cleanedRoot)
             {
-                CleanManifest();
+                //CleanManifest();
                 cleanedRoot = true;
             }
             else if (!rootExists && cleanedRoot)

@@ -38,7 +38,7 @@ namespace CrewQ
     public class CrewQ : MonoBehaviourExtended
     {
         // ITS OVER NINE THOUSAND!!!!111
-        private const ProtoCrewMember.RosterStatus VACATION = (ProtoCrewMember.RosterStatus)9001;
+        internal const ProtoCrewMember.RosterStatus VACATION = (ProtoCrewMember.RosterStatus)9001;
 
         // Singleton boilerplate
         private static CrewQ _Instance;
@@ -48,222 +48,126 @@ namespace CrewQ
             {
                 if (_Instance == null)
                 {
-                    _Instance = GameObject.FindObjectOfType<CrewQ>();
+                    throw new Exception("ERROR: Attempted to access CrewQ before it was loaded");
                 }
                 return _Instance;
             }
         }
 
-        private IList<ProtoCrewMember> _assignedCrewBuffer;
-
-        private bool _releaseOnce;
-
+        // MonoBehaviour Methods
         protected override void Awake()
         {
             Logging.Debug("Loading...");
+
             DontDestroyOnLoad(this);
+
             _Instance = this;
 
-            _assignedCrewBuffer = new List<ProtoCrewMember>();
-
-            GameEvents.onKerbalRemoved.Add(OnKerbalRemoved);
-            GameEvents.onLevelWasLoaded.Add(OnLevelWasLoaded);
             GameEvents.OnVesselRecoveryRequested.Add(OnVesselRecoveryRequested);
 
             Logging.Debug("Loaded");
         }
 
-        protected override void Update()
-        {
-            if (_releaseOnce && CrewQData.Instance != null)
-            {
-                Logging.Debug("Releasing crew once, just in case.");
-                ReleaseCrew();
-
-                _releaseOnce = false;
-            }
-        }
-
+        // KSP Events
         void OnVesselRecoveryRequested(Vessel vessel)
         {
-            Logging.Debug("Vessel Recovery Event Recieved");
-            OnCrewRecovery(vessel.GetVesselCrew(), vessel.missionTime);
-        }
+            double adjustedTime = vessel.missionTime + Planetarium.GetUniversalTime();
 
-        void OnKerbalRemoved(ProtoCrewMember crewMember)
-        {
-            Logging.Debug("Kerbal Remove Event");
-            if (CrewQData.Instance != null)
-            {
-                Logging.Info("Attempting to remove crew from roster... " + ((CrewQData.Instance.RemoveCrewIfDeadOrFired(crewMember)) ? "Success" : "Failure"));
-            }
-        }
+            adjustedTime = adjustedTime.Clamp(Planetarium.GetUniversalTime() + CrewQData.Instance.settingMinimumVacationDays * Utilities.GetDayLength, 
+                                              Planetarium.GetUniversalTime() + CrewQData.Instance.settingMaximumVacationDays * Utilities.GetDayLength);
 
-        void OnLevelWasLoaded(GameScenes scene)
-        {
-            Logging.Debug("Scene Loaded Event");
-            if (scene != GameScenes.EDITOR)
+            foreach (ProtoCrewMember kerbal in vessel.GetVesselCrew())
             {
-                // Just in case!
-                Logging.Debug("Queueing release event");
-                _releaseOnce = true;
+                kerbal.SetVacationTimerInternal(adjustedTime);
             }
 
-            Logging.Debug("Clearing _assignedCrewBuffer");
-            _assignedCrewBuffer.Clear();
+            GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
         }
 
-        // Our methods
-        public void OnCrewRecovery(IEnumerable<ProtoCrewMember> crewMembers, double missionTime)
+        // Our public methods
+        internal IEnumerable<ProtoCrewMember> AvailableCrew
         {
-            CrewQData settings = CrewQData.Instance;
-
-            double scaledVacationTime =  Planetarium.GetUniversalTime() + missionTime * settings.settingVacationScalar,
-                   minimumVacationTime = Utilities.GetDayLength * settings.settingMinimumVacationDays,
-                   maximumVacationTime = Utilities.GetDayLength * settings.settingMaximumVacationDays;
-
-            scaledVacationTime.Clamp(minimumVacationTime, maximumVacationTime);
-
-            foreach (ProtoCrewMember crewMember in crewMembers)
+            get
             {
-                CrewQData.Instance.AddOrUpdateCrew(crewMember, scaledVacationTime);
-            }            
-        }
+                IEnumerable<ProtoCrewMember> _AvailableCrew;
 
-        public void ClearAssignedBuffer()
-        {
-            _assignedCrewBuffer.Clear();
-        }
-
-        public void RemoveFromBuffer(IEnumerable<ProtoCrewMember> excessCrew)
-        {
-            Logging.Debug("Removing from assigned crew buffer");
-            _assignedCrewBuffer = _assignedCrewBuffer.Except(excessCrew).ToList();
-
-            Logging.Debug("Buffer now contains:");
-            foreach (ProtoCrewMember crewMember in _assignedCrewBuffer)
-            {
-                Logging.Debug(crewMember.name);
-            }
-        }
-
-        public void AddToBuffer(IEnumerable<ProtoCrewMember> assignedCrew)
-        {
-            Logging.Debug("Adding to assigned crew buffer");
-            _assignedCrewBuffer = _assignedCrewBuffer.Union(assignedCrew).ToList();
-
-            Logging.Debug("Buffer now contains:");
-            foreach (ProtoCrewMember crewMember in _assignedCrewBuffer)
-            {
-                Logging.Debug(crewMember.name);
-            }
-        }
-
-        public void SuppressCrew()
-        {
-            if (CrewQData.Instance != null && CrewQData.Instance.settingVacationHardlock)
-            {              
-                foreach (ProtoCrewMember crewMember in CrewQData.Instance.VacationingCrewRoster)
+                if (CrewQData.Instance.settingVacationHardlock)
                 {
-                    Logging.Debug("Hiding crew member: " + crewMember.name);
-                    crewMember.rosterStatus = VACATION;
-                }
-            }
-        }
-
-        public void ReleaseCrew()
-        {
-            if (CrewQData.Instance != null)
-            {              
-                foreach (ProtoCrewMember crewMember in CrewQData.Instance.VacationingCrewRoster)
-                {
-                    Logging.Debug("Unhiding: " + crewMember.name);
-                    crewMember.rosterStatus = ProtoCrewMember.RosterStatus.Available;
-                }
-            }
-        }
-
-        public IEnumerable<ProtoCrewMember> GetCrewForPart(Part part, bool veteran = false)
-        {
-            ProtoCrewMember[] crewBuffer = new ProtoCrewMember[part.CrewCapacity];
-
-            string[] crewSequence = new string[] { "Pilot", "Engineer", "Scientist" };
-
-            for (int i = 0; i < part.CrewCapacity; i++)
-            {
-                int selector;
-                if (i < crewSequence.Length)
-                {
-                    selector = i;
+                    _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew.Where(x => x.OnVacationInternal() == false);
                 }
                 else
                 {
-                    selector = new System.Random().Next(0, crewSequence.Length);
+                    _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew;
                 }
-                if (veteran)
-                {
-                    crewBuffer[i] = GetExperiencedCrewMember(crewSequence[selector]);
-                }
-                else
-                {
-                    crewBuffer[i] = GetCrewMember(crewSequence[selector]);
-                } 
-            }
 
-            return crewBuffer;
+                return _AvailableCrew.OrderBy(x => x.GetVacationTimerInternal());
+            }
         }
 
-        private IEnumerable<ProtoCrewMember> GetRosterByJobTitle(string jobTitle)
+        internal IEnumerable<ProtoCrewMember> UnavailableCrew
         {
-            IEnumerable<ProtoCrewMember> crewRoster = null;
-
-            if (CrewQData.Instance != null)
+            get
             {
-                CrewQData data = CrewQData.Instance;
+                return HighLogic.CurrentGame.CrewRoster.Crew.Except(AvailableCrew);
+            }
+        }
 
-                switch (jobTitle)
+        internal IEnumerable<ProtoCrewMember> NewbieCrew
+        {
+            get
+            {
+                return AvailableCrew.OrderBy(x => x.experienceLevel).ThenBy(x => x.GetVacationTimerInternal());
+            }
+        }
+
+        internal IEnumerable<ProtoCrewMember> VeteranCrew
+        {
+            get
+            {
+                return AvailableCrew.OrderByDescending(x => x.experienceLevel).ThenBy(x => x.GetVacationTimerInternal());
+            }
+        }
+
+        internal void HideVacationingCrew()
+        {
+            if (CrewQData.Instance.settingVacationHardlock)
+            {
+                foreach (ProtoCrewMember kerbal in UnavailableCrew)
                 {
-                    case "Pilot":
-                        crewRoster = data.AvailablePilotRoster.Except(_assignedCrewBuffer);
-                        break;
-                    case "Engineer":
-                        crewRoster = data.AvailableEngineerRoster.Except(_assignedCrewBuffer);
-                        break;
-                    case "Scientist":
-                        crewRoster = data.AvailableScientistRoster.Except(_assignedCrewBuffer);
-                        break;
-                    default:
-                        crewRoster = data.AvailableCrewRoster.Except(_assignedCrewBuffer);
-                        break;
+                    Logging.Debug("HIDING:" + kerbal.name);
+                    kerbal.rosterStatus = VACATION;
                 }
             }
-
-            return crewRoster;
         }
 
-        private ProtoCrewMember GetCrewMember(string jobTitle)
+        internal void ShowVacationingCrew()
         {
-            Logging.Debug("Getting a crew member...");
-            ProtoCrewMember selectedCrew = null;
-            if (CrewQData.Instance != null)
+            foreach (ProtoCrewMember kerbal in HighLogic.CurrentGame.CrewRoster.Crew.Where(x => x.rosterStatus == VACATION))
             {
-                IEnumerable<ProtoCrewMember> crewRoster = GetRosterByJobTitle(jobTitle).OrderBy(x => x.experienceLevel).ToList().TakePercent(25);
-                selectedCrew = crewRoster.RandomElement(new System.Random());
+                Logging.Debug("UNHIDING:" + kerbal.name);
+                kerbal.rosterStatus = ProtoCrewMember.RosterStatus.Available;
             }
-            return selectedCrew;
+        }
+    }
+
+    // The idea here is that we always want to be dealing with ProtoCrewMember outside of this class.
+    // By making our data available as extension methods, that makes life easier.
+    public static class CrewQExtensions
+    {
+        internal static double GetVacationTimerInternal(this ProtoCrewMember kerbal)
+        {
+            return CrewQData.Instance.GetVacationTimer(kerbal);
         }
 
-        private ProtoCrewMember GetExperiencedCrewMember(string jobTitle)
+        internal static bool OnVacationInternal(this ProtoCrewMember kerbal)
         {
-            Logging.Debug("Getting an experienced crew member...");
-            ProtoCrewMember selectedCrew = null;
-            if (CrewQData.Instance != null)
-            {
-                IEnumerable<ProtoCrewMember> crewRoster = GetRosterByJobTitle(jobTitle);
-                crewRoster = crewRoster.GroupBy(x => x.experienceLevel).OrderByDescending(x => x.Key).FirstOrDefault();
-                selectedCrew = crewRoster.RandomElement(new System.Random());                
-            }
-            return selectedCrew;
+            return CrewQData.Instance.OnVacation(kerbal);
+        }
+
+        internal static void SetVacationTimerInternal(this ProtoCrewMember kerbal, double timeout)
+        {
+            Logging.Debug("Attempting to set vacation timer: " + timeout);
+            CrewQData.Instance.SetVacationTimer(kerbal, timeout);
         }
     }
 }

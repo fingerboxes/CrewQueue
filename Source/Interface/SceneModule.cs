@@ -60,11 +60,11 @@ namespace CrewQ.Interface
         {
             if (remapCrewActive)
             {
-                CrewQ.Instance.SuppressCrew();
+                CrewQ.Instance.HideVacationingCrew();
             }
             else if (releaseTrigger)
             {
-                CrewQ.Instance.ReleaseCrew();
+                CrewQ.Instance.ShowVacationingCrew();
                 releaseTrigger = false;
             }
 
@@ -79,8 +79,6 @@ namespace CrewQ.Interface
             {
                 VesselCrewManifest originalVesselManifest = CMAssignmentDialog.Instance.GetManifest();
                 IList<PartCrewManifest> partCrewManifests = originalVesselManifest.GetCrewableParts();
-
-                CrewQ.Instance.ClearAssignedBuffer();
 
                 if (partCrewManifests != null && partCrewManifests.Count > 0)
                 {
@@ -98,9 +96,11 @@ namespace CrewQ.Interface
                         }
                         if (CrewQData.Instance.settingDoCustomAssignment)
                         {
-                            IEnumerable<ProtoCrewMember> newCrew = CrewQ.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true);
+                            int numCrew = partManifest.PartInfo.partPrefab.CrewCapacity;
 
-                            partManifest.AddCrewToOpenSeats(newCrew);
+                            IEnumerable<ProtoCrewMember> newCrew = new List<ProtoCrewMember>();
+
+                            //partManifest.AddCrewToOpenSeats(CrewQ.Instance.AvailableCrew);
                         }
                     }
                 }
