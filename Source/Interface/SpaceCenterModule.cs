@@ -47,7 +47,7 @@ namespace CrewQ.Interface
             GameEvents.onGUILaunchScreenDespawn.Add(onGUILaunchScreenDespawn);
         }
 
-        protected override void OnUpdate()
+        protected override void Update()
         {
             if (astronautComplexSpawned)
             {
@@ -56,10 +56,10 @@ namespace CrewQ.Interface
 
                 foreach (CrewItemContainer crewContainer in crewItemContainers)
                 {
-                    if (crewContainer.GetCrewRef().OnVacationInternal())
+                    if (crewContainer.GetCrewRef().type == ProtoCrewMember.KerbalType.Crew && crewContainer.GetCrewRef().OnVacation())
                     {
                         Logging.Debug("relabeling: " + crewContainer.GetName());
-                        string label = "Ready In: " + Utilities.GetFormattedTime(crewContainer.GetCrewRef().GetVacationTimerInternal());
+                        string label = "Ready In: " + Utilities.GetFormattedTime(crewContainer.GetCrewRef().GetVacationTimer() - Planetarium.GetUniversalTime());
                         crewContainer.SetLabel(label);
                     }
                 }
@@ -78,12 +78,13 @@ namespace CrewQ.Interface
 
         private void onGUILaunchScreenSpawn(GameEvents.VesselSpawnInfo info)
         {
-            RemapCrew = true;
+            CrewQ.Instance.HideVacationingCrew();
+            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
         }
 
         private void onGUILaunchScreenDespawn()
         {
-            RemapCrew = false;
+            CrewQ.Instance.ShowVacationingCrew();
         }
 
         private void onVesselSelected(ShipTemplate shipTemplate)

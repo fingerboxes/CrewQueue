@@ -57,25 +57,35 @@ namespace CrewQ.Interface
             if (screen == EditorScreen.Crew)
             {
                 RemapFillButton();
-                RemapCrew = true;
+                CrewQ.Instance.HideVacationingCrew();
             }
             else
             {
-                RemapCrew = false;
+                CrewQ.Instance.ShowVacationingCrew();
             }
+
+            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
         }
 
         // Our methods
-        protected override void OnUpdate()
+        protected override void Update()
         {
-            if (rootExists && !cleanedRoot)
+            try
             {
-                //CleanManifest();
-                cleanedRoot = true;
+                if (rootExists && !cleanedRoot)
+                {
+                    CleanManifest();
+                    cleanedRoot = true;
+                }
+                else if (!rootExists && cleanedRoot)
+                {
+                    cleanedRoot = false;
+                }
             }
-            else if (!rootExists && cleanedRoot)
+            catch (Exception)
             {
-                cleanedRoot = false;
+                // No worries!
+                Logging.Debug("If there is a problem with clearing the roster, look here.");
             }
         }
 

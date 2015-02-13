@@ -78,7 +78,7 @@ namespace CrewQ
 
             foreach (ProtoCrewMember kerbal in vessel.GetVesselCrew())
             {
-                kerbal.SetVacationTimerInternal(adjustedTime);
+                kerbal.SetVacationTimer(adjustedTime);
             }
 
             GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
@@ -93,14 +93,23 @@ namespace CrewQ
 
                 if (CrewQData.Instance.settingVacationHardlock)
                 {
-                    _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew.Where(x => x.OnVacationInternal() == false);
+                    _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew.Where(x => x.OnVacation() == false);
                 }
                 else
                 {
                     _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew;
                 }
 
-                return _AvailableCrew.OrderBy(x => x.GetVacationTimerInternal());
+                try
+                {
+                    _AvailableCrew.Except(CMAssignmentDialog.Instance.GetManifest().GetAllCrew(false));
+                }
+                catch (Exception)
+                {
+                    //nothing to see here, move along
+                }          
+
+                return _AvailableCrew.OrderBy(x => x.GetVacationTimer());
             }
         }
 
@@ -112,19 +121,19 @@ namespace CrewQ
             }
         }
 
-        internal IEnumerable<ProtoCrewMember> NewbieCrew
+        internal IOrderedEnumerable<ProtoCrewMember> NewbieCrew
         {
             get
             {
-                return AvailableCrew.OrderBy(x => x.experienceLevel).ThenBy(x => x.GetVacationTimerInternal());
+                return AvailableCrew.OrderBy(x => x.experienceLevel).ThenBy(x => x.GetVacationTimer());
             }
         }
 
-        internal IEnumerable<ProtoCrewMember> VeteranCrew
+        internal IOrderedEnumerable<ProtoCrewMember> VeteranCrew
         {
             get
             {
-                return AvailableCrew.OrderByDescending(x => x.experienceLevel).ThenBy(x => x.GetVacationTimerInternal());
+                return AvailableCrew.OrderByDescending(x => x.experienceLevel).ThenBy(x => x.GetVacationTimer());
             }
         }
 
@@ -148,26 +157,72 @@ namespace CrewQ
                 kerbal.rosterStatus = ProtoCrewMember.RosterStatus.Available;
             }
         }
+
+        internal IEnumerable<ProtoCrewMember> GetCrewForPart(Part partPrefab, bool preferVeterans = false)
+        {
+            IList<ProtoCrewMember> partCrew = new List<ProtoCrewMember>();
+            IEnumerable<ProtoCrewMember> availableCrew = (preferVeterans ? VeteranCrew : NewbieCrew);
+            string[] crewComposition;
+            int numToSelect = partPrefab.CrewCapacity;
+            ProtoCrewMember candidate;
+
+            //Get Crew Composition
+            if (partPrefab.Modules.OfType<ModuleCrewQ>().Any())
+            {
+                crewComposition = partPrefab.Modules["ModuleCrewQ"].Fields.GetValue<string>("crewComposition").Split(',').Select(x => x.Trim()).ToArray();
+            }
+            else
+            {
+                crewComposition = new string[] { "Pilot", "Engineer", "Scientist" };
+            }
+
+            for (int i = 0; i < numToSelect; i++)
+            {
+                if (i < crewComposition.Length)
+                {
+                    candidate = availableCrew.Where(x => x.experienceTrait.Title == crewComposition[i]).FirstOrDefault();                    
+                }
+                else
+                {
+                    candidate = availableCrew.Where(x => x.experienceTrait.Title == crewComposition[new System.Random().Next(crewComposition.Length)]).FirstOrDefault();           
+                }
+
+                if (candidate != null)
+                {
+                    partCrew.Add(candidate);
+                }
+
+                availableCrew = availableCrew.Except(partCrew);
+            }
+
+            return partCrew;
+        } 
     }
 
     // The idea here is that we always want to be dealing with ProtoCrewMember outside of this class.
     // By making our data available as extension methods, that makes life easier.
     public static class CrewQExtensions
     {
-        internal static double GetVacationTimerInternal(this ProtoCrewMember kerbal)
+        internal static double GetVacationTimer(this ProtoCrewMember kerbal)
         {
             return CrewQData.Instance.GetVacationTimer(kerbal);
         }
 
-        internal static bool OnVacationInternal(this ProtoCrewMember kerbal)
+        internal static bool OnVacation(this ProtoCrewMember kerbal)
         {
             return CrewQData.Instance.OnVacation(kerbal);
         }
 
-        internal static void SetVacationTimerInternal(this ProtoCrewMember kerbal, double timeout)
+        internal static void SetVacationTimer(this ProtoCrewMember kerbal, double timeout)
         {
             Logging.Debug("Attempting to set vacation timer: " + timeout);
             CrewQData.Instance.SetVacationTimer(kerbal, timeout);
         }
+    }
+
+    public class ModuleCrewQ : PartModule
+    {
+        [KSPField]
+        public string crewComposition;
     }
 }

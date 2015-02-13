@@ -37,45 +37,9 @@ namespace CrewQ.Interface
 {
     public abstract class SceneModule : MonoBehaviourExtended
     {
-        private bool remapCrewActive, releaseTrigger;
-        public bool RemapCrew
-        {
-            get
-            {
-                return remapCrewActive;
-            }
-
-            set
-            {
-                if (value == false)
-                {
-                    releaseTrigger = true;
-                }
-                remapCrewActive = value;
-            }
-        }
-
-        // Monobehaviour Methods
-        sealed protected override void Update()
-        {
-            if (remapCrewActive)
-            {
-                CrewQ.Instance.HideVacationingCrew();
-            }
-            else if (releaseTrigger)
-            {
-                CrewQ.Instance.ShowVacationingCrew();
-                releaseTrigger = false;
-            }
-
-            OnUpdate();
-        }
-
-        virtual protected void OnUpdate() { }
-
         public void CleanManifest()
         {
-            if (CMAssignmentDialog.Instance != null && CrewQData.Instance != null)
+            if (CMAssignmentDialog.Instance != null && (CrewQData.Instance.settingRemoveDefaultCrews || CrewQData.Instance.settingDoCustomAssignment))
             {
                 VesselCrewManifest originalVesselManifest = CMAssignmentDialog.Instance.GetManifest();
                 IList<PartCrewManifest> partCrewManifests = originalVesselManifest.GetCrewableParts();
@@ -83,25 +47,17 @@ namespace CrewQ.Interface
                 if (partCrewManifests != null && partCrewManifests.Count > 0)
                 {
                     PartCrewManifest partManifest = partCrewManifests[0];
-
-                    if (CrewQData.Instance.settingRemoveDefaultCrews || CrewQData.Instance.settingDoCustomAssignment)
+                    foreach (ProtoCrewMember crewMember in partManifest.GetPartCrew())
                     {
-                        foreach (ProtoCrewMember crewMember in partManifest.GetPartCrew())
+                        if (crewMember != null)
                         {
-                            if (crewMember != null)
-                            {
-                                // Clean the root part
-                                partManifest.RemoveCrewFromSeat(partManifest.GetCrewSeat(crewMember));
-                            }
+                            // Clean the root part
+                            partManifest.RemoveCrewFromSeat(partManifest.GetCrewSeat(crewMember));
                         }
-                        if (CrewQData.Instance.settingDoCustomAssignment)
-                        {
-                            int numCrew = partManifest.PartInfo.partPrefab.CrewCapacity;
-
-                            IEnumerable<ProtoCrewMember> newCrew = new List<ProtoCrewMember>();
-
-                            //partManifest.AddCrewToOpenSeats(CrewQ.Instance.AvailableCrew);
-                        }
+                    }
+                    if (CrewQData.Instance.settingDoCustomAssignment)
+                    {
+                        partManifest.AddCrewToOpenSeats(CrewQ.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true));
                     }
                 }
 
@@ -112,6 +68,7 @@ namespace CrewQ.Interface
         public void RemapFillButton()
         {
             BTButton[] buttons = MiscUtils.GetFields<BTButton>(CMAssignmentDialog.Instance);
+            buttons[0].RemoveInputDelegate(new EZInputDelegate(CMAssignmentDialog.Instance.ButtonFill));
             buttons[0].AddInputDelegate(new EZInputDelegate(OnFillButton));
         }
 
@@ -119,17 +76,10 @@ namespace CrewQ.Interface
         {
             if (eventPointer.evt == POINTER_INFO.INPUT_EVENT.TAP)
             {
-                Logging.Debug("Fill Button Pressed");
+                Logging.Debug("Fill Button Pressed");                
                 if (CrewQData.Instance.settingDoCustomAssignment)
                 {
-                    VesselCrewManifest vesselManifest = CMAssignmentDialog.Instance.GetManifest();
-
-                    foreach (PartCrewManifest partManifest in vesselManifest)
-                    {
-                        bool firstPart = (partManifest == vesselManifest.GetCrewableParts()[0]);
-
-                        partManifest.AddCrewToOpenSeats(CrewQ.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, firstPart));
-                    }
+                    // TODO - make this work.
                 }
                 else
                 {
@@ -137,5 +87,5 @@ namespace CrewQ.Interface
                 }
             }
         }
-    }
+    }    
 }

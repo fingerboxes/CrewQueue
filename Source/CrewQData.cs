@@ -167,16 +167,7 @@ namespace CrewQ
 
         public bool OnVacation(ProtoCrewMember kerbal)
         {
-            double vacationTimer = kerbal.GetVacationTimerInternal();
-
-            if (vacationTimer == -1)
-            {
-                return false;
-            }
-            else
-            {
-                return (vacationTimer - Planetarium.GetUniversalTime() > 0);
-            }            
+            return ((GetVacationTimer(kerbal) - Planetarium.GetUniversalTime()) > 0);
         }
 
         public void SetVacationTimer(ProtoCrewMember kerbal, double timeout)
