@@ -61,22 +61,22 @@ namespace CrewQ
         /// <summary>
         /// Returns the Kerbals who are allowed to go on missions, sorted inexperienced first.
         /// </summary>
-        public static IEnumerable<ProtoCrewMember> NewbieCrew
+        public static IOrderedEnumerable<ProtoCrewMember> NewbieCrew
         {
             get
             {
-                return (IEnumerable<ProtoCrewMember>)getProperty("NewbieCrew");
+                return (IOrderedEnumerable<ProtoCrewMember>)getProperty("NewbieCrew");
             }
         }
 
         /// <summary>
         /// Returns the Kerbals who are allowed to go on missions, sorted veterans first.
         /// </summary>
-        public static IEnumerable<ProtoCrewMember> VeteranCrew
+        public static IOrderedEnumerable<ProtoCrewMember> VeteranCrew
         {
             get
             {
-                return (IEnumerable<ProtoCrewMember>)getProperty("VeteranCrew");
+                return (IOrderedEnumerable<ProtoCrewMember>)getProperty("VeteranCrew");
             }
         }
 
@@ -96,6 +96,17 @@ namespace CrewQ
             invokeMethod("ShowVacationingCrew");
         }
 
+        /// <summary>
+        /// Obtains a group of crew for the specified part
+        /// </summary>
+        /// <param name="partPrefab">A reference to the Part in question.</param>
+        /// <param name="preferVeterans">Check if veterans should be prioritized over newbies</param>
+        /// <returns></returns>
+        public IEnumerable<ProtoCrewMember> GetCrewForPart(Part partPrefab, bool preferVeterans = false)
+        {
+            return (IEnumerable<ProtoCrewMember>) invokeMethod("GetCrewForPart", new object[] { partPrefab, preferVeterans });
+        }
+
         // Generic accessors
         internal static object Instance
         {
@@ -104,9 +115,12 @@ namespace CrewQ
                 if (Available && _instance == null)
                 {
                     _instance = _type.GetProperty("Instance").GetValue(null, null);
+                    return _instance;
                 }
-
-                return _instance;
+                else
+                {
+                    throw new Exception("Attempted to access CrewQ without that mod installed.");
+                }
             }
         }
 
@@ -119,7 +133,7 @@ namespace CrewQ
             }
             else
             {
-                return null;
+                throw new Exception("Attempted to access CrewQ without that mod installed.");
             }
         }
 
@@ -132,36 +146,8 @@ namespace CrewQ
             }
             else
             {
-                return null;
+                throw new Exception("Attempted to access CrewQ without that mod installed.");
             }
-        }
-    }
-
-    public static class APIExtensions
-    {
-        /// <summary>
-        /// Returns the time (in seconds) at which this Kerbal is or was eligible for missions again.
-        /// </summary>
-        public static double GetVacationTimer(this ProtoCrewMember kerbal)
-        {
-            return (double)API.invokeMethod("GetVacationTimerInternal", new object[] { kerbal });
-        }
-
-        /// <summary>
-        /// Returns the vacation state of this Kerbal
-        /// </summary>
-        public static bool OnVacation(this ProtoCrewMember kerbal)
-        {
-            return (bool)API.invokeMethod("OnVacationInternal", new object[] { kerbal });
-        }
-
-        /// <summary>
-        /// Set the time at which this Kerbal will be eligible for missions again.
-        /// </summary>
-        /// <param name="timeout">Time (in seconds) at which this Kerbal will be eligible for missions.</param>
-        public static void SetVacationTimer(this ProtoCrewMember kerbal, double timeout)
-        {
-            API.invokeMethod("SetVacationTimerInternal", new object[] { kerbal, timeout });
         }
     }
 }
