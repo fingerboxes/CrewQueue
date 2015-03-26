@@ -93,11 +93,11 @@ namespace CrewQ
 
                 if (CrewQData.Instance.settingVacationHardlock)
                 {
-                    _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew.Where(x => x.OnVacation() == false);
+                    _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew.Where(x => x.OnVacation() == false && x.rosterStatus == ProtoCrewMember.RosterStatus.Available);
                 }
                 else
                 {
-                    _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew;
+                    _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew.Where (x => x.rosterStatus == ProtoCrewMember.RosterStatus.Available);
                 }
 
                 try
