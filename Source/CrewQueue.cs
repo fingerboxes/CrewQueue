@@ -71,10 +71,10 @@ namespace CrewQueue
             }
         }
 
-        internal IEnumerable<ProtoCrewMember> GetCrewForPart(Part partPrefab, bool preferVeterans = false)
+        internal IEnumerable<ProtoCrewMember> GetCrewForPart(Part partPrefab, IEnumerable<ProtoCrewMember> exemptList, bool preferVeterans = false)
         {
             IList<ProtoCrewMember> partCrew = new List<ProtoCrewMember>();
-            IEnumerable<ProtoCrewMember> availableCrew = (preferVeterans ? CrewQueueRoster.Instance.MostExperiencedCrew : CrewQueueRoster.Instance.LeastExperiencedCrew);
+            IEnumerable<ProtoCrewMember> availableCrew = (preferVeterans ? CrewQueueRoster.Instance.MostExperiencedCrew : CrewQueueRoster.Instance.LeastExperiencedCrew).Except(exemptList);
             string[] crewComposition;
             int numToSelect = partPrefab.CrewCapacity;
             ProtoCrewMember candidate;

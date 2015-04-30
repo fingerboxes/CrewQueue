@@ -37,17 +37,15 @@ namespace CrewQueue.Interface
         private const string WINDOW_TITLE = "CrewQueue Settings";
         private const int BORDER_SIZE = 5;
 
-        private const int WINDOW_WIDTH = 330, WINDOW_HEIGHT = 240;
+        private const int WINDOW_WIDTH = 330, WINDOW_HEIGHT = 210;
         private const int COLUMN_A = BORDER_SIZE;
         private const int COLUMN_B = COLUMN_A + (WINDOW_WIDTH / 2);
         private const int ROW_HEIGHT = 30;
 
         private string[] toggleCaptions = { "Automatically select crew",
-                                            "Crew on vacation cannot go on missions", 
-                                            "Force pod-type crew compositions", 
                                             "<color=orange>Permanently hide this menu</color>" };
         
-        private bool toggleDoCustomAssignment, toggleUseCrewCompositions, toggleHideSettingsIcon, toggleRemoveDefaultCrews;
+        private bool toggleHideSettingsIcon, toggleRemoveDefaultCrews;
         private string localVacationScalar = string.Empty, localMinimumVacationDays = string.Empty, localMaximumVacationDays = string.Empty;
 
         private bool pauseSync = false, popupArmed = true;
@@ -70,22 +68,17 @@ namespace CrewQueue.Interface
 
             GUI.Box(new Rect(BORDER_SIZE, 30, WindowRect.width - (BORDER_SIZE * 2), WindowRect.height - (BORDER_SIZE * 2) - 30), "");
 
-            toggleHideSettingsIcon = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 45, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleHideSettingsIcon, toggleCaptions[3]);
-            toggleDoCustomAssignment = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 75, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleDoCustomAssignment, toggleCaptions[0]);
-            toggleUseCrewCompositions = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 105, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleUseCrewCompositions, toggleCaptions[2]);
+            toggleHideSettingsIcon = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 45, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleHideSettingsIcon, toggleCaptions[1]);
+            toggleRemoveDefaultCrews = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 75, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleRemoveDefaultCrews, toggleCaptions[0]);
 
-            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 130, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.7), 30), "<color=white>Minimum vacation Days:</color>");
-            localMinimumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 40, WINDOW_HEIGHT - 130, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localMinimumVacationDays);
+            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 110, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.7), 30), "<color=white>Minimum vacation Days:</color>");
+            localMinimumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 40, WINDOW_HEIGHT - 110, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3)-20, 20), localMinimumVacationDays);
 
-            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 160, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.7), 30), "<color=white>Maximum vacation Days:</color>");
-            localMaximumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 40, WINDOW_HEIGHT - 160, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localMaximumVacationDays);
+            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 140, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.7), 30), "<color=white>Maximum vacation Days:</color>");
+            localMaximumVacationDays = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 40, WINDOW_HEIGHT - 140, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3)-20, 20), localMaximumVacationDays);
 
-            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 190, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.7), 30), "<color=white>Base vacation rate:</color>");
-            localVacationScalar = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 40, WINDOW_HEIGHT - 190, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3), 20), localVacationScalar);
-            
-            //toggleVacationHardlock = GUI.Toggle(new Rect(COLUMN_A, WINDOW_HEIGHT - 225, WINDOW_WIDTH - (BORDER_SIZE * 2), 30), toggleVacationHardlock, toggleCaptions[1]);
-
-            toggleRemoveDefaultCrews = toggleRemoveDefaultCrews | toggleDoCustomAssignment;
+            GUI.Label(new Rect(COLUMN_A + 5, WINDOW_HEIGHT - 170, (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.7), 30), "<color=white>Base vacation rate (%):</color>");
+            localVacationScalar = GUI.TextField(new Rect((float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.5) + 40, WINDOW_HEIGHT - 170, (WINDOW_WIDTH - 20) - (float)((WINDOW_WIDTH - (BORDER_SIZE * 2)) / 1.3)-20, 20), localVacationScalar);
             
             if (toggleHideSettingsIcon && popupArmed)
             {
@@ -121,8 +114,7 @@ namespace CrewQueue.Interface
 
             if (settings != null)
             {
-                toggleDoCustomAssignment = settings.AssignCrews;
-                toggleUseCrewCompositions = settings.StrictCrewCompositions;
+                toggleRemoveDefaultCrews = settings.AssignCrews;
                 localMinimumVacationDays = settings.MinimumVacationDays.ToString();
                 localMaximumVacationDays = settings.MaximumVacationDays.ToString();
                 localVacationScalar = (settings.VacationScalar * 100).ToString();
@@ -135,9 +127,7 @@ namespace CrewQueue.Interface
 
             if (settings != null)
             {
-                settings.HideSettingsIcon = toggleRemoveDefaultCrews;
-                settings.AssignCrews = toggleDoCustomAssignment;
-                settings.StrictCrewCompositions = toggleUseCrewCompositions;
+                settings.AssignCrews = toggleRemoveDefaultCrews;
                 settings.HideSettingsIcon = toggleHideSettingsIcon;
 
                 try

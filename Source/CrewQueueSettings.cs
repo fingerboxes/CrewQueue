@@ -55,13 +55,7 @@ namespace CrewQueue
         public bool HideSettingsIcon = false;
 
         [KSPField(isPersistant = true)]
-        public bool StrictCrewCompositions = true;
-
-        [KSPField(isPersistant = true)]
         public bool AssignCrews = true;
-
-        //[KSPField(isPersistant = true)]
-        //public bool VacationHardLock = true;
 
         [KSPField(isPersistant = true)]
         public double VacationScalar = 0.1;

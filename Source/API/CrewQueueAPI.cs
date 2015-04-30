@@ -28,7 +28,7 @@ namespace CrewQueue
                     _type = AssemblyLoader.loadedAssemblies
                                           .Select(a => a.assembly.GetExportedTypes())
                                           .SelectMany(t => t)
-                                          .FirstOrDefault(t => t.FullName == "CrewQ.CrewQ");
+                                          .FirstOrDefault(t => t.FullName == "CrewQueue.CrewQueue");
 
                     _available = _type != null;
                 }
@@ -42,8 +42,8 @@ namespace CrewQueue
         public static IEnumerable<ProtoCrewMember> AvailableCrew
         {
             get
-            {
-                return (IEnumerable<ProtoCrewMember>) getProperty("AvailableCrew");          
+            {                
+                return (IEnumerable<ProtoCrewMember>) getProperty("CrewQueueRoster", "AvailableCrew");          
             }
         }
 
@@ -54,7 +54,7 @@ namespace CrewQueue
         {
             get
             {
-                return (IEnumerable<ProtoCrewMember>) getProperty("UnavailableCrew");
+                return (IEnumerable<ProtoCrewMember>) getProperty("CrewQueueRoster", "UnavailableCrew");
             }
         }
 
@@ -65,7 +65,7 @@ namespace CrewQueue
         {
             get
             {
-                return (IOrderedEnumerable<ProtoCrewMember>)getProperty("NewbieCrew");
+                return (IOrderedEnumerable<ProtoCrewMember>)getProperty("CrewQueueRoster", "LeastExperiencedCrew");
             }
         }
 
@@ -76,24 +76,8 @@ namespace CrewQueue
         {
             get
             {
-                return (IOrderedEnumerable<ProtoCrewMember>)getProperty("VeteranCrew");
+                return (IOrderedEnumerable<ProtoCrewMember>)getProperty("CrewQueueRoster", "MostExperiencedCrew");
             }
-        }
-
-        /// <summary>
-        /// Hides any kerbals who aren't allowed on missions from the vanilla available crew lists
-        /// </summary>
-        public void HideVacationingCrew()
-        {
-            invokeMethod("HideVacationingCrew");
-        }
-
-        /// <summary>
-        /// Reverses a previous call to HideVacationingCrew
-        /// </summary>
-        public void ShowVacationingCrew()
-        {
-            invokeMethod("ShowVacationingCrew");
         }
 
         /// <summary>
@@ -104,7 +88,7 @@ namespace CrewQueue
         /// <returns></returns>
         public IEnumerable<ProtoCrewMember> GetCrewForPart(Part partPrefab, bool preferVeterans = false)
         {
-            return (IEnumerable<ProtoCrewMember>) invokeMethod("GetCrewForPart", new object[] { partPrefab, preferVeterans });
+            return (IEnumerable<ProtoCrewMember>) invokeMethod("CrewQueue","GetCrewForPart", new object[] { partPrefab, preferVeterans });
         }
 
         // Generic accessors
@@ -124,11 +108,16 @@ namespace CrewQueue
             }
         }
 
-        internal static object getProperty(string name, object[] indexes = null)
+        internal static object getProperty(string target, string name, object[] indexes = null)
         {
             if (Available)
             {
-                System.Reflection.PropertyInfo _property = _type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Instance);
+                Type type = AssemblyLoader.loadedAssemblies
+                                          .Select(a => a.assembly.GetExportedTypes())
+                                          .SelectMany(t => t)
+                                          .FirstOrDefault(t => t.FullName == "CrewQueue." + target);
+
+                System.Reflection.PropertyInfo _property = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Instance);
                 return _property.GetValue(Instance, indexes);
             }
             else
@@ -137,11 +126,16 @@ namespace CrewQueue
             }
         }
 
-        internal static object invokeMethod(string name, object[] parameters = null)
+        internal static object invokeMethod(string target, string name, object[] parameters = null)
         {
             if (Available)
             {
-                MethodInfo _method = _type.GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance);
+                Type type = AssemblyLoader.loadedAssemblies
+                                          .Select(a => a.assembly.GetExportedTypes())
+                                          .SelectMany(t => t)
+                                          .FirstOrDefault(t => t.FullName == "CrewQueue." + target);
+
+                MethodInfo _method = type.GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance);
                 return _method.Invoke(Instance, parameters);
             }
             else

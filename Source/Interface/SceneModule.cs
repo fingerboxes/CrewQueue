@@ -55,8 +55,10 @@ namespace CrewQueue.Interface
                             partManifest.RemoveCrewFromSeat(partManifest.GetCrewSeat(crewMember));
                         }
                     }
-                   
-                    partManifest.AddCrewToOpenSeats(CrewQueue.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true));
+                    if (CrewQueueSettings.Instance.AssignCrews)
+                    {
+                        partManifest.AddCrewToOpenSeats(CrewQueue.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, new List<ProtoCrewMember>(), true));
+                    }
                 }
 
                 CMAssignmentDialog.Instance.RefreshCrewLists(originalVesselManifest, true, true);
@@ -90,23 +92,16 @@ namespace CrewQueue.Interface
         {
             if (eventPointer.evt == POINTER_INFO.INPUT_EVENT.TAP)
             {
-                Logging.Debug("Fill Button Pressed");                
-                if (CrewQueueSettings.Instance.AssignCrews)
-                {
-                    foreach (PartCrewManifest partManifest in CMAssignmentDialog.Instance.GetManifest())
-                    {
-                        if (partManifest.PartInfo.partPrefab.CrewCapacity > 0)
-                        {
-                            bool vets = (CMAssignmentDialog.Instance.GetManifest()[0] == partManifest);
 
-                            partManifest.AddCrewToOpenSeats(CrewQueue.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, vets));
-                        }
-                     }
-                }
-                else
+                VesselCrewManifest manifest = CMAssignmentDialog.Instance.GetManifest();
+
+                foreach (PartCrewManifest partManifest in manifest.GetCrewableParts())
                 {
-                    CMAssignmentDialog.Instance.ButtonFill(ref eventPointer);
+                    bool vets = (partManifest == manifest.GetCrewableParts()[0]) ? true : false;
+                    partManifest.AddCrewToOpenSeats(CrewQueue.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, manifest.GetAllCrew(false), vets));
                 }
+
+                CMAssignmentDialog.Instance.RefreshCrewLists(manifest, true, true);
             }
         }
     }    
