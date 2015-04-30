@@ -45,7 +45,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\CrewQAPI.cs" />
+    <Compile Include="API\CrewQueueAPI.cs" />
+    <Compile Include="API\CrewQueueProxy.cs" />
     <Compile Include="CrewQueue.cs" />
     <Compile Include="CrewQueueRoster.cs" />
     <Compile Include="CrewQueueSettings.cs" />
