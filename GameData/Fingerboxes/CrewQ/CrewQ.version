@@ -1,10 +1,10 @@
 {
   "NAME":"CrewQ",
-	"URL":"https://raw.githubusercontent.com/fingerboxes/CrewQ/master/GameData/Fingerboxes/CrewQueue/CrewQueue.version",
-  "DOWNLOAD":"https://github.com/fingerboxes/CrewQueue/releases",
+	"URL":"https://raw.githubusercontent.com/fingerboxes/CrewQ/master/GameData/Fingerboxes/CrewQ/CrewQ.version",
+  "DOWNLOAD":"https://github.com/fingerboxes/CrewQ/releases",
   "GITHUB":{
     "USERNAME":"fingerboxes",
-    "REPOSITORY":"CrewQueue",
+    "REPOSITORY":"CrewQ",
     "ALLOW_PRE_RELEASE":false
     },
   "VERSION":{

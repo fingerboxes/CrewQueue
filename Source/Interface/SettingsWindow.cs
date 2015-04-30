@@ -30,7 +30,7 @@ using KSPPluginFramework;
 using UnityEngine;
 using FingerboxLib;
 
-namespace CrewQueue.Interface
+namespace CrewQ.Interface
 {
     class SettingsWindow : MonoBehaviourWindow
     {
@@ -119,7 +119,7 @@ namespace CrewQueue.Interface
 
         public void PreSync()
         {
-            Data settings = Data.Instance;
+            CrewQData settings = CrewQData.Instance;
 
             if (settings != null)
             {
@@ -134,7 +134,7 @@ namespace CrewQueue.Interface
 
         public void Sync()
         {
-            Data settings = Data.Instance;
+            CrewQData settings = CrewQData.Instance;
 
             if (settings != null)
             {
