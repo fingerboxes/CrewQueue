@@ -39,7 +39,7 @@ namespace CrewQueue.Interface
     {        
         public override Texture AppLauncherIcon
         {
-            get { return GameDatabase.Instance.GetTexture("Fingerboxes/CrewQ/Icons/appLauncher", false); }
+            get { return GameDatabase.Instance.GetTexture("Fingerboxes/CrewQueue/Icons/appLauncher", false); }
         }
 
         public override ApplicationLauncher.AppScenes Visibility
@@ -49,7 +49,7 @@ namespace CrewQueue.Interface
                 try
                 {
                     bool coalescedCondition = (settingsWindow != null) &&
-                                              (Data.Instance.settingHideSettingsIcon == false || settingsWindow.Visible == true);
+                                              (Settings.Instance.HideSettingsIcon == false || settingsWindow.Visible == true);
 
                     return coalescedCondition ? ApplicationLauncher.AppScenes.SPACECENTER : ApplicationLauncher.AppScenes.NEVER;
                 }
