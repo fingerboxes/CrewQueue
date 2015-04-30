@@ -32,7 +32,7 @@ using UnityEngine;
 using KSPPluginFramework;
 using FingerboxLib;
 
-namespace CrewQueue.Interface
+namespace CrewQ.Interface
 {
     [KSPAddon(KSPAddon.Startup.EditorAny, false)]
     class EditorModule : SceneModule
@@ -57,11 +57,11 @@ namespace CrewQueue.Interface
             if (screen == EditorScreen.Crew)
             {
                 RemapFillButton();
-                Main.Instance.HideVacationingCrew();
+                CrewQ.Instance.HideVacationingCrew();
             }
             else
             {
-                Main.Instance.ShowVacationingCrew();
+                CrewQ.Instance.ShowVacationingCrew();
             }
 
             CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
