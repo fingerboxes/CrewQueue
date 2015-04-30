@@ -32,7 +32,7 @@ using FingerboxLib;
 using FingerboxLib.Interface;
 using KSPPluginFramework;
 
-namespace CrewQ.Interface
+namespace CrewQueue.Interface
 {
     [KSPAddon(KSPAddon.Startup.EveryScene,true)]
     class AppLauncher : ProtoAppLauncher
@@ -49,7 +49,7 @@ namespace CrewQ.Interface
                 try
                 {
                     bool coalescedCondition = (settingsWindow != null) &&
-                                              (CrewQData.Instance.settingHideSettingsIcon == false || settingsWindow.Visible == true);
+                                              (Data.Instance.settingHideSettingsIcon == false || settingsWindow.Visible == true);
 
                     return coalescedCondition ? ApplicationLauncher.AppScenes.SPACECENTER : ApplicationLauncher.AppScenes.NEVER;
                 }
