@@ -48,7 +48,7 @@ namespace CrewQueue
             {
                 if (_Instance == null)
                 {
-                    throw new Exception("ERROR: Attempted to access CrewQ before it was loaded");
+                    throw new Exception("ERROR: Attempted to access CrewQueue.Main before it was loaded");
                 }
                 return _Instance;
             }
@@ -73,8 +73,8 @@ namespace CrewQueue
         {
             double adjustedTime = vessel.missionTime + Planetarium.GetUniversalTime();
 
-            adjustedTime = adjustedTime.Clamp(Planetarium.GetUniversalTime() + Data.Instance.settingMinimumVacationDays * Utilities.GetDayLength, 
-                                              Planetarium.GetUniversalTime() + Data.Instance.settingMaximumVacationDays * Utilities.GetDayLength);
+            adjustedTime = adjustedTime.Clamp(Planetarium.GetUniversalTime() + Settings.Instance.MinimumVacationDays * Utilities.GetDayLength, 
+                                              Planetarium.GetUniversalTime() + Settings.Instance.MaximumVacationDays * Utilities.GetDayLength);
 
             foreach (ProtoCrewMember kerbal in vessel.GetVesselCrew())
             {
@@ -91,7 +91,7 @@ namespace CrewQueue
             {
                 IEnumerable<ProtoCrewMember> _AvailableCrew;
 
-                if (Data.Instance.settingVacationHardlock)
+                if (Settings.Instance.VacationHardLock)
                 {
                     _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew.Where(x => x.OnVacation() == false && x.rosterStatus == ProtoCrewMember.RosterStatus.Available);
                 }
@@ -113,33 +113,9 @@ namespace CrewQueue
             }
         }
 
-        internal IEnumerable<ProtoCrewMember> UnavailableCrew
-        {
-            get
-            {
-                return HighLogic.CurrentGame.CrewRoster.Crew.Except(AvailableCrew);
-            }
-        }
-
-        internal IOrderedEnumerable<ProtoCrewMember> NewbieCrew
-        {
-            get
-            {
-                return AvailableCrew.OrderBy(x => x.experienceLevel).ThenBy(x => x.GetVacationTimer());
-            }
-        }
-
-        internal IOrderedEnumerable<ProtoCrewMember> VeteranCrew
-        {
-            get
-            {
-                return AvailableCrew.OrderByDescending(x => x.experienceLevel).ThenBy(x => x.GetVacationTimer());
-            }
-        }
-
         internal void HideVacationingCrew()
         {
-            if (Data.Instance.settingVacationHardlock)
+            if (Settings.Instance.VacationHardLock)
             {
                 foreach (ProtoCrewMember kerbal in UnavailableCrew)
                 {
@@ -205,18 +181,18 @@ namespace CrewQueue
     {
         internal static double GetVacationTimer(this ProtoCrewMember kerbal)
         {
-            return Data.Instance.GetVacationTimer(kerbal);
+            return Settings.Instance.GetVacationTimer(kerbal);
         }
 
         internal static bool OnVacation(this ProtoCrewMember kerbal)
         {
-            return Data.Instance.OnVacation(kerbal);
+            return Settings.Instance.OnVacation(kerbal);
         }
 
         internal static void SetVacationTimer(this ProtoCrewMember kerbal, double timeout)
         {
             Logging.Debug("Attempting to set vacation timer: " + timeout);
-            Data.Instance.SetVacationTimer(kerbal, timeout);
+            Settings.Instance.SetVacationTimer(kerbal, timeout);
         }
     }
 
