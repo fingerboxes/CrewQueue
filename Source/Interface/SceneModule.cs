@@ -39,7 +39,7 @@ namespace CrewQueue.Interface
     {
         public void CleanManifest()
         {
-            if (CMAssignmentDialog.Instance != null && Settings.Instance.AssignCrews)
+            if (CMAssignmentDialog.Instance != null && (Data.Instance.settingRemoveDefaultCrews || Data.Instance.settingDoCustomAssignment))
             {
                 VesselCrewManifest originalVesselManifest = CMAssignmentDialog.Instance.GetManifest();
                 IList<PartCrewManifest> partCrewManifests = originalVesselManifest.GetCrewableParts();
@@ -55,7 +55,7 @@ namespace CrewQueue.Interface
                             partManifest.RemoveCrewFromSeat(partManifest.GetCrewSeat(crewMember));
                         }
                     }
-                    if (Settings.Instance.AssignCrews)
+                    if (Data.Instance.settingDoCustomAssignment)
                     {
                         partManifest.AddCrewToOpenSeats(Main.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true));
                     }
@@ -77,7 +77,7 @@ namespace CrewQueue.Interface
             if (eventPointer.evt == POINTER_INFO.INPUT_EVENT.TAP)
             {
                 Logging.Debug("Fill Button Pressed");                
-                if (Settings.Instance.AssignCrews)
+                if (Data.Instance.settingDoCustomAssignment)
                 {
                     // TODO - make this work.
                 }
