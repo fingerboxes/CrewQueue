@@ -32,17 +32,17 @@ using KSPPluginFramework;
 using FingerboxLib;
 
 // Start reading here!
-namespace CrewQ
+namespace CrewQueue
 {
     [KSPAddon(KSPAddon.Startup.EveryScene, true)]
-    public class CrewQ : MonoBehaviourExtended
+    public class Main : MonoBehaviourExtended
     {
         // ITS OVER NINE THOUSAND!!!!111
         internal const ProtoCrewMember.RosterStatus VACATION = (ProtoCrewMember.RosterStatus)9001;
 
         // Singleton boilerplate
-        private static CrewQ _Instance;
-        public static CrewQ Instance
+        private static Main _Instance;
+        public static Main Instance
         {
             get
             {
@@ -73,8 +73,8 @@ namespace CrewQ
         {
             double adjustedTime = vessel.missionTime + Planetarium.GetUniversalTime();
 
-            adjustedTime = adjustedTime.Clamp(Planetarium.GetUniversalTime() + CrewQData.Instance.settingMinimumVacationDays * Utilities.GetDayLength, 
-                                              Planetarium.GetUniversalTime() + CrewQData.Instance.settingMaximumVacationDays * Utilities.GetDayLength);
+            adjustedTime = adjustedTime.Clamp(Planetarium.GetUniversalTime() + Data.Instance.settingMinimumVacationDays * Utilities.GetDayLength, 
+                                              Planetarium.GetUniversalTime() + Data.Instance.settingMaximumVacationDays * Utilities.GetDayLength);
 
             foreach (ProtoCrewMember kerbal in vessel.GetVesselCrew())
             {
@@ -91,7 +91,7 @@ namespace CrewQ
             {
                 IEnumerable<ProtoCrewMember> _AvailableCrew;
 
-                if (CrewQData.Instance.settingVacationHardlock)
+                if (Data.Instance.settingVacationHardlock)
                 {
                     _AvailableCrew = HighLogic.CurrentGame.CrewRoster.Crew.Where(x => x.OnVacation() == false && x.rosterStatus == ProtoCrewMember.RosterStatus.Available);
                 }
@@ -139,7 +139,7 @@ namespace CrewQ
 
         internal void HideVacationingCrew()
         {
-            if (CrewQData.Instance.settingVacationHardlock)
+            if (Data.Instance.settingVacationHardlock)
             {
                 foreach (ProtoCrewMember kerbal in UnavailableCrew)
                 {
@@ -205,18 +205,18 @@ namespace CrewQ
     {
         internal static double GetVacationTimer(this ProtoCrewMember kerbal)
         {
-            return CrewQData.Instance.GetVacationTimer(kerbal);
+            return Data.Instance.GetVacationTimer(kerbal);
         }
 
         internal static bool OnVacation(this ProtoCrewMember kerbal)
         {
-            return CrewQData.Instance.OnVacation(kerbal);
+            return Data.Instance.OnVacation(kerbal);
         }
 
         internal static void SetVacationTimer(this ProtoCrewMember kerbal, double timeout)
         {
             Logging.Debug("Attempting to set vacation timer: " + timeout);
-            CrewQData.Instance.SetVacationTimer(kerbal, timeout);
+            Data.Instance.SetVacationTimer(kerbal, timeout);
         }
     }
 

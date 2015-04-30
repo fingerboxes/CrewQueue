@@ -31,14 +31,14 @@ using UnityEngine;
 using KSPPluginFramework;
 using FingerboxLib;
 
-namespace CrewQ
+namespace CrewQueue
 {
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, new GameScenes[] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.TRACKSTATION })]
-    class CrewQData : ScenarioModule
+    class Data : ScenarioModule
     {
         // Singleton boilerplate
-        private static CrewQData _Instance;
-        internal static CrewQData Instance
+        private static Data _Instance;
+        internal static Data Instance
         {
             get
             {
@@ -100,7 +100,7 @@ namespace CrewQ
                 }
             }
 
-            CrewQ.Instance.ShowVacationingCrew();
+            Main.Instance.ShowVacationingCrew();
         }
 
         void Destroy()
