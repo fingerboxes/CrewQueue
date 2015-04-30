@@ -56,10 +56,11 @@ namespace CrewQueue.Interface
 
                 foreach (CrewItemContainer crewContainer in crewItemContainers)
                 {
-                    if (crewContainer.GetCrewRef().type == ProtoCrewMember.KerbalType.Crew && crewContainer.GetCrewRef().OnVacation())
+                    if (crewContainer.GetCrewRef().type == ProtoCrewMember.KerbalType.Crew && crewContainer.GetCrewRef().IsOnVacation())
                     {
+                        // TODO - This needs attention
                         Logging.Debug("relabeling: " + crewContainer.GetName());
-                        string label = "Ready In: " + Utilities.GetFormattedTime(crewContainer.GetCrewRef().GetVacationTimer() - Planetarium.GetUniversalTime());
+                        string label = "Ready In: " + Utilities.GetFormattedTime(crewContainer.GetCrewRef().VacationExpiry() - Planetarium.GetUniversalTime());
                         crewContainer.SetLabel(label);
                     }
                 }
@@ -78,13 +79,13 @@ namespace CrewQueue.Interface
 
         private void onGUILaunchScreenSpawn(GameEvents.VesselSpawnInfo info)
         {
-            Main.Instance.HideVacationingCrew();
+            HideVacationingCrew();
             CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
         }
 
         private void onGUILaunchScreenDespawn()
         {
-            Main.Instance.ShowVacationingCrew();
+            RestoreVacationingCrew();
         }
 
         private void onVesselSelected(ShipTemplate shipTemplate)

@@ -57,11 +57,11 @@ namespace CrewQueue.Interface
             if (screen == EditorScreen.Crew)
             {
                 RemapFillButton();
-                Main.Instance.HideVacationingCrew();
+                HideVacationingCrew();
             }
             else
             {
-                Main.Instance.ShowVacationingCrew();
+                RestoreVacationingCrew();
             }
 
             CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
@@ -70,22 +70,25 @@ namespace CrewQueue.Interface
         // Our methods
         protected override void Update()
         {
-            try
+            if (CrewQueueSettings.Instance.AssignCrews)
             {
-                if (rootExists && !cleanedRoot)
+                try
                 {
-                    CleanManifest();
-                    cleanedRoot = true;
+                    if (rootExists && !cleanedRoot)
+                    {
+                        CleanManifest();
+                        cleanedRoot = true;
+                    }
+                    else if (!rootExists && cleanedRoot)
+                    {
+                        cleanedRoot = false;
+                    }
                 }
-                else if (!rootExists && cleanedRoot)
+                catch (Exception)
                 {
-                    cleanedRoot = false;
+                    // No worries!
+                    Logging.Debug("If there is a problem with clearing the roster, look here.");
                 }
-            }
-            catch (Exception)
-            {
-                // No worries!
-                Logging.Debug("If there is a problem with clearing the roster, look here.");
             }
         }
 

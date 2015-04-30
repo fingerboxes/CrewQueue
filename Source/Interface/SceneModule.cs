@@ -39,7 +39,7 @@ namespace CrewQueue.Interface
     {
         public void CleanManifest()
         {
-            if (CMAssignmentDialog.Instance != null && Settings.Instance.AssignCrews)
+            if (CMAssignmentDialog.Instance != null)
             {
                 VesselCrewManifest originalVesselManifest = CMAssignmentDialog.Instance.GetManifest();
                 IList<PartCrewManifest> partCrewManifests = originalVesselManifest.GetCrewableParts();
@@ -55,16 +55,30 @@ namespace CrewQueue.Interface
                             partManifest.RemoveCrewFromSeat(partManifest.GetCrewSeat(crewMember));
                         }
                     }
-                    if (Settings.Instance.AssignCrews)
-                    {
-                        partManifest.AddCrewToOpenSeats(Main.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true));
-                    }
+                   
+                    partManifest.AddCrewToOpenSeats(CrewQueue.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true));
                 }
 
                 CMAssignmentDialog.Instance.RefreshCrewLists(originalVesselManifest, true, true);
             }
         }
 
+        public void HideVacationingCrew()
+        {
+            foreach (ProtoCrewMember kerbal in CrewQueueRoster.Instance.UnavailableCrew.Where(k => k.rosterStatus == ProtoCrewMember.RosterStatus.Available))
+            {
+                kerbal.rosterStatus = CrewQueue.ROSTERSTATUS_VACATION;
+            }
+        }
+
+        public void RestoreVacationingCrew()
+        {
+            foreach (ProtoCrewMember kerbal in HighLogic.CurrentGame.CrewRoster.Crew.Where(k => k.rosterStatus == CrewQueue.ROSTERSTATUS_VACATION))
+            {
+                kerbal.rosterStatus = ProtoCrewMember.RosterStatus.Available;
+            }
+        }
+        
         public void RemapFillButton()
         {
             BTButton[] buttons = MiscUtils.GetFields<BTButton>(CMAssignmentDialog.Instance);
@@ -77,9 +91,17 @@ namespace CrewQueue.Interface
             if (eventPointer.evt == POINTER_INFO.INPUT_EVENT.TAP)
             {
                 Logging.Debug("Fill Button Pressed");                
-                if (Settings.Instance.AssignCrews)
+                if (CrewQueueSettings.Instance.AssignCrews)
                 {
-                    // TODO - make this work.
+                    foreach (PartCrewManifest partManifest in CMAssignmentDialog.Instance.GetManifest())
+                    {
+                        if (partManifest.PartInfo.partPrefab.CrewCapacity > 0)
+                        {
+                            bool vets = (CMAssignmentDialog.Instance.GetManifest()[0] == partManifest);
+
+                            partManifest.AddCrewToOpenSeats(CrewQueue.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, vets));
+                        }
+                     }
                 }
                 else
                 {

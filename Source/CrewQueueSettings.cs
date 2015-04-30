@@ -34,11 +34,11 @@ using FingerboxLib;
 namespace CrewQueue
 {
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, new GameScenes[] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.TRACKSTATION })]
-    class Settings : ScenarioModule
+    class CrewQueueSettings : ScenarioModule
     {
         // Singleton boilerplate
-        private static Settings _Instance;
-        internal static Settings Instance
+        private static CrewQueueSettings _Instance;
+        internal static CrewQueueSettings Instance
         {
             get
             {
@@ -60,8 +60,8 @@ namespace CrewQueue
         [KSPField(isPersistant = true)]
         public bool AssignCrews = true;
 
-        [KSPField(isPersistant = true)]
-        public bool VacationHardLock = true;
+        //[KSPField(isPersistant = true)]
+        //public bool VacationHardLock = true;
 
         [KSPField(isPersistant = true)]
         public double VacationScalar = 0.1;
@@ -92,7 +92,7 @@ namespace CrewQueue
 
                 foreach (ConfigNode crewNode in crewNodes)
                 {
-                    _CrewList.Add(new CrewNode(crewNode));
+                    CrewQueueRoster.Instance.AddExtElement(new CrewQueueRoster.KerbalExtData(crewNode));
                 }
             }
         }
@@ -102,28 +102,12 @@ namespace CrewQueue
             rootNode.RemoveNode("CrewList");
             ConfigNode crewNodes = new ConfigNode("CrewList");
 
-            foreach (CrewNode crewNode in _CrewList)
+            foreach (CrewQueueRoster.KerbalExtData crewNode in CrewQueueRoster.Instance.ExtDataSet)
             {
-                crewNodes.AddNode(crewNode.AsConfigNode());
+                crewNodes.AddNode(crewNode.ConfigNode);
             }
 
             rootNode.AddNode(crewNodes);
-        }
-    
-        // Accessor methods.
-        public double GetVacationTimer(ProtoCrewMember kerbal)
-        {
-            return _CrewList.FirstOrDefault(x => x.ProtoCrewReference == kerbal).Expiration;
-        }
-
-        public bool OnVacation(ProtoCrewMember kerbal)
-        {
-            return ((GetVacationTimer(kerbal) - Planetarium.GetUniversalTime()) > 0);
-        }
-
-        public void SetVacationTimer(ProtoCrewMember kerbal, double timeout)
-        {
-            _CrewList.FirstOrDefault(x => x.ProtoCrewReference == kerbal).Expiration = timeout;
         }
     }
 

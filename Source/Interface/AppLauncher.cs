@@ -49,7 +49,7 @@ namespace CrewQueue.Interface
                 try
                 {
                     bool coalescedCondition = (settingsWindow != null) &&
-                                              (Settings.Instance.HideSettingsIcon == false || settingsWindow.Visible == true);
+                                              (CrewQueueSettings.Instance.HideSettingsIcon == false || settingsWindow.Visible == true);
 
                     return coalescedCondition ? ApplicationLauncher.AppScenes.SPACECENTER : ApplicationLauncher.AppScenes.NEVER;
                 }
