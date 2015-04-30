@@ -31,7 +31,7 @@ using UnityEngine;
 using KSPPluginFramework;
 using FingerboxLib;
 
-namespace CrewQueue.Interface
+namespace CrewQ.Interface
 {
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     class SpaceCenterModule : SceneModule
@@ -78,13 +78,13 @@ namespace CrewQueue.Interface
 
         private void onGUILaunchScreenSpawn(GameEvents.VesselSpawnInfo info)
         {
-            Main.Instance.HideVacationingCrew();
+            CrewQ.Instance.HideVacationingCrew();
             CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
         }
 
         private void onGUILaunchScreenDespawn()
         {
-            Main.Instance.ShowVacationingCrew();
+            CrewQ.Instance.ShowVacationingCrew();
         }
 
         private void onVesselSelected(ShipTemplate shipTemplate)

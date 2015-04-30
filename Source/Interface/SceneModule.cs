@@ -33,13 +33,13 @@ using KSPPluginFramework;
 
 using System.Reflection;
 
-namespace CrewQueue.Interface
+namespace CrewQ.Interface
 {
     public abstract class SceneModule : MonoBehaviourExtended
     {
         public void CleanManifest()
         {
-            if (CMAssignmentDialog.Instance != null && (Data.Instance.settingRemoveDefaultCrews || Data.Instance.settingDoCustomAssignment))
+            if (CMAssignmentDialog.Instance != null && (CrewQData.Instance.settingRemoveDefaultCrews || CrewQData.Instance.settingDoCustomAssignment))
             {
                 VesselCrewManifest originalVesselManifest = CMAssignmentDialog.Instance.GetManifest();
                 IList<PartCrewManifest> partCrewManifests = originalVesselManifest.GetCrewableParts();
@@ -55,9 +55,9 @@ namespace CrewQueue.Interface
                             partManifest.RemoveCrewFromSeat(partManifest.GetCrewSeat(crewMember));
                         }
                     }
-                    if (Data.Instance.settingDoCustomAssignment)
+                    if (CrewQData.Instance.settingDoCustomAssignment)
                     {
-                        partManifest.AddCrewToOpenSeats(Main.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true));
+                        partManifest.AddCrewToOpenSeats(CrewQ.Instance.GetCrewForPart(partManifest.PartInfo.partPrefab, true));
                     }
                 }
 
@@ -77,7 +77,7 @@ namespace CrewQueue.Interface
             if (eventPointer.evt == POINTER_INFO.INPUT_EVENT.TAP)
             {
                 Logging.Debug("Fill Button Pressed");                
-                if (Data.Instance.settingDoCustomAssignment)
+                if (CrewQData.Instance.settingDoCustomAssignment)
                 {
                     // TODO - make this work.
                 }
