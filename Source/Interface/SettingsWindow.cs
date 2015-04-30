@@ -119,34 +119,34 @@ namespace CrewQueue.Interface
 
         public void PreSync()
         {
-            Data settings = Data.Instance;
+            Settings settings = Settings.Instance;
 
             if (settings != null)
             {
-                toggleDoCustomAssignment = settings.settingDoCustomAssignment;
-                toggleUseCrewCompositions = settings.settingUseCrewCompositions;
-                toggleVacationHardlock = settings.settingVacationHardlock;
-                localMinimumVacationDays = settings.settingMinimumVacationDays.ToString();
-                localMaximumVacationDays = settings.settingMaximumVacationDays.ToString();
-                localVacationScalar = (settings.settingVacationScalar * 100).ToString();
+                toggleDoCustomAssignment = settings.AssignCrews;
+                toggleUseCrewCompositions = settings.StrictCrewCompositions;
+                toggleVacationHardlock = settings.VacationHardLock;
+                localMinimumVacationDays = settings.MinimumVacationDays.ToString();
+                localMaximumVacationDays = settings.MaximumVacationDays.ToString();
+                localVacationScalar = (settings.VacationScalar * 100).ToString();
             }
         }
 
         public void Sync()
         {
-            Data settings = Data.Instance;
+            Settings settings = Settings.Instance;
 
             if (settings != null)
             {
-                settings.settingHideSettingsIcon = toggleRemoveDefaultCrews;
-                settings.settingDoCustomAssignment = toggleDoCustomAssignment;
-                settings.settingUseCrewCompositions = toggleUseCrewCompositions;
-                settings.settingVacationHardlock = toggleVacationHardlock;
-                settings.settingHideSettingsIcon = toggleHideSettingsIcon;
+                settings.HideSettingsIcon = toggleRemoveDefaultCrews;
+                settings.AssignCrews = toggleDoCustomAssignment;
+                settings.StrictCrewCompositions = toggleUseCrewCompositions;
+                settings.VacationHardLock = toggleVacationHardlock;
+                settings.HideSettingsIcon = toggleHideSettingsIcon;
 
                 try
                 {
-                    settings.settingMinimumVacationDays = Int32.Parse(localMinimumVacationDays);
+                    settings.MinimumVacationDays = Int32.Parse(localMinimumVacationDays);
                 }
                 catch (Exception)
                 {
@@ -155,7 +155,7 @@ namespace CrewQueue.Interface
 
                 try
                 {
-                    settings.settingMaximumVacationDays = Int32.Parse(localMaximumVacationDays);
+                    settings.MaximumVacationDays = Int32.Parse(localMaximumVacationDays);
                 }
                 catch (Exception)
                 {
@@ -164,7 +164,7 @@ namespace CrewQueue.Interface
 
                 try
                 {
-                    settings.settingVacationScalar = (Double.Parse(localVacationScalar) / 100);
+                    settings.VacationScalar = (Double.Parse(localVacationScalar) / 100);
                 }
                 catch (Exception)
                 {

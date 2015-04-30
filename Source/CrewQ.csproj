@@ -50,7 +50,8 @@
   <ItemGroup>
     <Compile Include="API\CrewQAPI.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Data.cs" />
+    <Compile Include="Roster.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Interface\AppLauncher.cs" />
     <Compile Include="Interface\EditorModule.cs" />
     <Compile Include="Interface\SettingsWindow.cs" />
