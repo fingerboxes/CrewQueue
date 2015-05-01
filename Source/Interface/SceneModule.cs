@@ -37,6 +37,11 @@ namespace CrewQueue.Interface
 {
     public abstract class SceneModule : MonoBehaviourExtended
     {
+        protected override void Awake()
+        {
+            RestoreVacationingCrew();
+        }
+
         public void CleanManifest()
         {
             if (CMAssignmentDialog.Instance != null)
