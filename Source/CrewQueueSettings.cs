@@ -79,6 +79,7 @@ namespace CrewQueue
         // ScenarioModule methods
         public override void OnLoad(ConfigNode rootNode)
         {
+            CrewQueueRoster.Instance.Flush();
             if (rootNode.HasNode("CrewList"))
             {
                 rootNode = rootNode.GetNode("CrewList");

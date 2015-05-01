@@ -125,6 +125,11 @@ namespace CrewQueue
             return _ExtDataSet.Add(newElement);
         }
 
+        public void Flush()
+        {
+            _ExtDataSet = new HashSet<KerbalExtData>();
+        }
+
         // Our storage node type.
         public class KerbalExtData
         {
