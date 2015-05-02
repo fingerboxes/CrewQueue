@@ -242,6 +242,7 @@ namespace CrewQueue
         {
             CrewQueueRoster.Instance.GetExtForKerbal(kerbal).LastMissionDuration = newMissionDuration;
             CrewQueueRoster.Instance.GetExtForKerbal(kerbal).LastMissionEndTime = currentTime;
+            GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
         }
 
         public static double GetLastMissionDuration(this ProtoCrewMember kerbal)
