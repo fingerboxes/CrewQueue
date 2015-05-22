@@ -63,8 +63,6 @@ namespace CrewQueue.Interface
             {
                 RestoreVacationingCrew();
             }
-
-            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
         }
 
         // Our methods

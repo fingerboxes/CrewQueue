@@ -37,11 +37,6 @@ namespace CrewQueue.Interface
 {
     public abstract class SceneModule : MonoBehaviourExtended
     {
-        protected override void Awake()
-        {
-            RestoreVacationingCrew();
-        }
-
         public void CleanManifest()
         {
             if (CMAssignmentDialog.Instance != null)
@@ -76,6 +71,7 @@ namespace CrewQueue.Interface
             {
                 kerbal.rosterStatus = CrewQueue.ROSTERSTATUS_VACATION;
             }
+            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
         }
 
         public void RestoreVacationingCrew()
@@ -84,6 +80,7 @@ namespace CrewQueue.Interface
             {
                 kerbal.rosterStatus = ProtoCrewMember.RosterStatus.Available;
             }
+            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
         }
         
         public void RemapFillButton()

@@ -80,7 +80,6 @@ namespace CrewQueue.Interface
         private void onGUILaunchScreenSpawn(GameEvents.VesselSpawnInfo info)
         {
             HideVacationingCrew();
-            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
         }
 
         private void onGUILaunchScreenDespawn()
