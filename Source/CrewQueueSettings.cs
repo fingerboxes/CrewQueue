@@ -99,7 +99,19 @@ namespace CrewQueue
 
             foreach (CrewQueueRoster.KerbalExtData crewNode in CrewQueueRoster.Instance.ExtDataSet)
             {
+                bool rosterHidden = (crewNode.ProtoReference.rosterStatus == CrewQueue.ROSTERSTATUS_VACATION);
+
+                if (rosterHidden)
+                {
+                    crewNode.ProtoReference.rosterStatus = ProtoCrewMember.RosterStatus.Available;
+                }
+
                 crewNodes.AddNode(crewNode.ConfigNode);
+
+                if (rosterHidden)
+                {
+                    crewNode.ProtoReference.rosterStatus = CrewQueue.ROSTERSTATUS_VACATION;
+                }
             }
 
             rootNode.AddNode(crewNodes);
