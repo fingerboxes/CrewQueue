@@ -42,6 +42,7 @@ namespace CrewQueue.Interface
         // Monobehaviour Methods
         protected override void Awake()
         {
+            base.Awake();
             GameEvents.onEditorShipModified.Add(OnEditorShipModified);
             GameEvents.onEditorScreenChange.Add(OnEditorScreenChanged);
         }
@@ -57,11 +58,11 @@ namespace CrewQueue.Interface
             if (screen == EditorScreen.Crew)
             {
                 RemapFillButton();
-                HideVacationingCrew();
+                CrewQueueRoster.HideVacationingCrew();
             }
             else
             {
-                RestoreVacationingCrew();
+                CrewQueueRoster.RestoreVacationingCrew();
             }
         }
 

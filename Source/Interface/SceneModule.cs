@@ -64,24 +64,6 @@ namespace CrewQueue.Interface
                 CMAssignmentDialog.Instance.RefreshCrewLists(originalVesselManifest, true, true);
             }
         }
-
-        public void HideVacationingCrew()
-        {
-            foreach (ProtoCrewMember kerbal in CrewQueueRoster.Instance.UnavailableCrew.Where(k => k.rosterStatus == ProtoCrewMember.RosterStatus.Available))
-            {
-                kerbal.rosterStatus = CrewQueue.ROSTERSTATUS_VACATION;
-            }
-            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
-        }
-
-        public void RestoreVacationingCrew()
-        {
-            foreach (ProtoCrewMember kerbal in HighLogic.CurrentGame.CrewRoster.Crew.Where(k => k.rosterStatus == CrewQueue.ROSTERSTATUS_VACATION))
-            {
-                kerbal.rosterStatus = ProtoCrewMember.RosterStatus.Available;
-            }
-            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
-        }
         
         public void RemapFillButton()
         {

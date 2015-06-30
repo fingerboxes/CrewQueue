@@ -130,6 +130,24 @@ namespace CrewQueue
             _ExtDataSet = new HashSet<KerbalExtData>();
         }
 
+        public static void HideVacationingCrew()
+        {
+            foreach (ProtoCrewMember kerbal in CrewQueueRoster.Instance.UnavailableCrew.Where(k => k.rosterStatus == ProtoCrewMember.RosterStatus.Available))
+            {
+                kerbal.rosterStatus = CrewQueue.ROSTERSTATUS_VACATION;
+            }
+            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
+        }
+
+        public static void RestoreVacationingCrew()
+        {
+            foreach (ProtoCrewMember kerbal in HighLogic.CurrentGame.CrewRoster.Crew.Where(k => k.rosterStatus == CrewQueue.ROSTERSTATUS_VACATION))
+            {
+                kerbal.rosterStatus = ProtoCrewMember.RosterStatus.Available;
+            }
+            CMAssignmentDialog.Instance.RefreshCrewLists(CMAssignmentDialog.Instance.GetManifest(), true, true);
+        }
+
         // Our storage node type.
         public class KerbalExtData
         {

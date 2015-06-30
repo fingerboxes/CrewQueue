@@ -40,6 +40,7 @@ namespace CrewQueue.Interface
 
         protected override void Awake()
         {
+            base.Awake();
             GameEvents.onGUILaunchScreenVesselSelected.Add(onVesselSelected);
             GameEvents.onGUIAstronautComplexSpawn.Add(onGUIAstronautComplexSpawn);
             GameEvents.onGUIAstronautComplexDespawn.Add(onGUIAstronautComplexDespawn);
@@ -79,12 +80,12 @@ namespace CrewQueue.Interface
 
         private void onGUILaunchScreenSpawn(GameEvents.VesselSpawnInfo info)
         {
-            HideVacationingCrew();
+            CrewQueueRoster.HideVacationingCrew();
         }
 
         private void onGUILaunchScreenDespawn()
         {
-            RestoreVacationingCrew();
+            CrewQueueRoster.RestoreVacationingCrew();
         }
 
         private void onVesselSelected(ShipTemplate shipTemplate)

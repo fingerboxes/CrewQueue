@@ -60,6 +60,7 @@ namespace CrewQueue
             DontDestroyOnLoad(this);
             _Instance = this;            
             GameEvents.OnVesselRecoveryRequested.Add(OnVesselRecoveryRequested);
+            GameEvents.onLevelWasLoaded.Add(OnLevelWasLoaded);
         }
 
         // KSP Events
@@ -69,6 +70,11 @@ namespace CrewQueue
             {
                 kerbal.SetLastMissionData(vessel.missionTime, Planetarium.GetUniversalTime());
             }
+        }
+
+        void OnLevelWasLoaded(GameScenes scene)
+        {
+            CrewQueueRoster.RestoreVacationingCrew();
         }
 
         internal IEnumerable<ProtoCrewMember> GetCrewForPart(Part partPrefab, IEnumerable<ProtoCrewMember> exemptList, bool preferVeterans = false)
@@ -110,7 +116,7 @@ namespace CrewQueue
             }
 
             return partCrew;
-        } 
+        }             
     }
 
     public class ModuleCrewQ : PartModule
