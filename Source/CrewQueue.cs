@@ -80,39 +80,68 @@ namespace CrewQueue
         internal IEnumerable<ProtoCrewMember> GetCrewForPart(Part partPrefab, IEnumerable<ProtoCrewMember> exemptList, bool preferVeterans = false)
         {
             IList<ProtoCrewMember> partCrew = new List<ProtoCrewMember>();
-            IEnumerable<ProtoCrewMember> availableCrew = (preferVeterans ? CrewQueueRoster.Instance.MostExperiencedCrew : CrewQueueRoster.Instance.LeastExperiencedCrew).Except(exemptList);
-            string[] crewComposition;
+            IEnumerable<ProtoCrewMember> availableCrew = (preferVeterans ? CrewQueueRoster.Instance.MostExperiencedCrew : CrewQueueRoster.Instance.AvailableCrew).Except(exemptList);
+            string[] crewCompositionStrings;
             int numToSelect = partPrefab.CrewCapacity;
-            ProtoCrewMember candidate;
+            Dictionary<string, IEnumerable<ProtoCrewMember>> crewComposition = new Dictionary<string, IEnumerable<ProtoCrewMember>>();
+
+            Logging.Debug("Listing availableCrew");
+            foreach (ProtoCrewMember crew in availableCrew)
+            {
+                Logging.Debug(" + " + crew.name);
+            }
+
+            Logging.Debug("Selecting " + numToSelect + " crew members");
 
             //Get Crew Composition
             if (partPrefab.Modules.OfType<ModuleCrewQ>().Any())
             {
-                crewComposition = partPrefab.Modules["ModuleCrewQ"].Fields.GetValue<string>("crewComposition").Split(',').Select(x => x.Trim()).ToArray();
+                crewCompositionStrings = partPrefab.Modules["ModuleCrewQ"].Fields.GetValue<string>("crewComposition").Split(',').Select(x => x.Trim()).ToArray();
             }
             else
             {
-                crewComposition = new string[] { "Pilot", "Engineer", "Scientist" };
+                crewCompositionStrings = new string[] { "Pilot", "Engineer", "Scientist" };
+            }
+
+            Logging.Debug("Using Composition String ... \"" + string.Join(",",crewCompositionStrings) + "\"");
+
+            foreach (string element in crewCompositionStrings)
+            {
+                crewComposition.Add(element, availableCrew.Where(x => x.experienceTrait.Title == element));
+            }
+
+            // First Pass
+            foreach (string type in crewCompositionStrings)
+            {
+                if (numToSelect > 0)
+                {
+                    if (crewComposition[type].Count() > 0)
+                    {
+                        partCrew.Add(crewComposition[type].FirstOrDefault());
+                        crewComposition[type] = crewComposition[type].Except(partCrew);
+                        numToSelect--;
+                    }
+                }
             }
 
             for (int i = 0; i < numToSelect; i++)
             {
-                if (i < crewComposition.Length)
+                string type = crewCompositionStrings[new System.Random().Next(crewCompositionStrings.Length)];
+                if (crewComposition[type].Count() > 0)
                 {
-                    candidate = availableCrew.Where(x => x.experienceTrait.Title == crewComposition[i]).FirstOrDefault();
+                    partCrew.Add(crewComposition[type].FirstOrDefault());
+                    crewComposition[type] = crewComposition[type].Except(partCrew);
                 }
                 else
                 {
-                    candidate = availableCrew.Where(x => x.experienceTrait.Title == crewComposition[new System.Random().Next(crewComposition.Length)]).FirstOrDefault();
+                    i--;
                 }
-
-                if (candidate != null)
-                {
-                    Logging.Debug("Adding candidate: " + candidate.name);
-                    partCrew.Add(candidate);
-                }
-
-                availableCrew = availableCrew.Except(partCrew);
+            }
+ 
+            Logging.Debug("Listing Candidates...");
+            foreach (ProtoCrewMember crew in partCrew)
+            {
+                Logging.Debug("Candidate: " + crew.name);
             }
 
             return partCrew;
